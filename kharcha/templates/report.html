@@ -1,0 +1,72 @@
+{% extends "layout.html" %}
+{% from "macros.html" import expensetable, newexpense, expense_script, expense_table_script %}
+{% block title %}Expense report: {{ report.title }}{% endblock %}
+{% block headline %}{% endblock %}
+{% block content %}
+  <div class="row section">
+    <div class="span6">
+      <div class="page-header"><h1>{{ self.title() }}</h1></div>
+      {{ report.description|safe }}
+    </div>
+    <div class="span3">
+      <ul class="well nav nav-list">
+        <li><i class="icon-user"></i> {{ report.user.fullname }}</li>
+        <li><i class="icon-calendar"></i> {{ report.created_at|longdate }}</li>
+        <li><i class="icon-cog"></i> Status: {{ workflow.state.title }}</li>
+        {% if workflow.editable() -%}
+          <li><a href="{{ url_for('report_edit', id=report.id) }}"><i class="icon-pencil"></i> Edit details...</a></li>
+        {%- endif %}
+        {% if workflow.draft() -%}
+          <li><a href="{{ url_for('report_delete', id=report.id) }}"><i class="icon-remove"></i> Delete...</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+  {{ expensetable(report, workflow) }}
+  {% if workflow.editable() %}
+    {{ newexpense(expenseform, categories) }}
+  {% endif %}
+  <div class="form-actions">
+    {% if 'submit' in transitions %}
+      <form class="form-inline form-button" method="POST" action="{{ url_for('report_submit', id=report.id) }}">
+        <button type="submit" class="btn btn-primary">{{ transitions['submit']['title'] }}</button>
+      </form>
+    {% endif %}
+    {% if 'accept' in transitions %}
+      <form class="form-inline form-button" method="POST" action="{{ url_for('report_accept', id=report.id) }}">
+        <button type="submit" class="btn btn-primary">{{ transitions['accept']['title'] }}</button>
+      </form>
+    {% endif %}
+    {% if 'return' in transitions %}
+      <form class="form-inline form-button" method="POST" action="{{ url_for('report_return', id=report.id) }}">
+        <button type="submit" class="btn btn-warning">{{ transitions['return']['title'] }}</button>
+      </form>
+    {% endif %}
+    {% if 'reject' in transitions %}
+      <form class="form-inline form-button" method="POST" action="{{ url_for('report_reject', id=report.id) }}">
+        <button type="submit" class="btn btn-danger">{{ transitions['reject']['title'] }}</button>
+      </form>
+    {% endif %}
+    {% if 'discard_draft' in transitions %}
+      <form class="form-inline form-button" method="POST" action="{{ url_for('report_discard', id=report.id) }}">
+        <button type="submit" class="btn btn-danger">{{ transitions['discard_draft']['title'] }}</button>
+      </form>
+    {% endif %}
+    {% if 'discard_review' in transitions %}
+      <form class="form-inline form-button" method="POST" action="{{ url_for('report_discard', id=report.id) }}">
+        <button type="submit" class="btn btn-danger">{{ transitions['discard_review']['title'] }}</button>
+      </form>
+    {% endif %}
+    {% if 'close' in transitions %}
+      <form class="form-inline form-button" method="POST" action="{{ url_for('report_close', id=report.id) }}">
+        <button type="submit" class="btn btn-success">{{ transitions['close']['title'] }}</button>
+      </form>
+    {% endif %}
+  </div>
+{% endblock %}
+{% block footerscripts %}
+  {% if workflow.editable() %}
+    {{ expense_script() }}
+    {{ expense_table_script() }}
+  {% endif %}
+{% endblock %}

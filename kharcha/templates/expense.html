@@ -1,0 +1,16 @@
+{% from "macros.html" import newexpense, expense_script with context %}
+{# This template is inserted into an existing page #}
+{{ newexpense(expenseform, categories) }}
+{{ expense_script() }}
+
+<script type="text/javascript">
+  $(function() {
+    $("[data-datepicker]").datepicker();
+    $.ajax("{{ url_for('report_expensetable', id=report.id) }}", {
+      cache: false,
+      success: function(data) {
+        $("#expense-table").replaceWith(data);
+      }
+    });
+  });
+</script>

@@ -1,0 +1,46 @@
+{% extends "layout.html" %}
+{% block title %}Expense reports{% endblock %}
+{% block content %}
+  <div class="tabbable">
+    <ul class="nav nav-tabs">
+      {% for s in report_states %}
+        <li{% if loop.first %} class="active"{% endif %}><a href="#report-{{ s.name }}" data-toggle="tab">{{ s.title }}</a></li>
+      {% endfor %}
+    </ul>
+    <div class="tab-content">
+      {% for s in report_states %}
+        <div class="tab-pane{% if loop.first %} active{% endif %}" id="report-{{ s.name }}">
+          <table class="table">
+            <thead>
+              <th>#</th>
+              <th>Title</th>
+              <th>Currency</th>
+              <th>Budget</th>
+              <th>Owner</th>
+              <th>Amount</th>
+            </thead>
+            <tbody>
+              {% for r in reports[s.name] %}
+                <tr class="link">
+                  <td><a href="{{ url_for('report', id=r.id) }}">{{ r.id }}</a></td>
+                  <td><a href="{{ url_for('report', id=r.id) }}">{{ r.title }}</a></td>
+                  <td><a href="{{ url_for('report', id=r.id) }}">{{ r.currency }}</a></td>
+                  <td><a href="{{ url_for('report', id=r.id) }}">{{ r.budget.title }}</a></td>
+                  <td><a href="{{ url_for('report', id=r.id) }}">{{ r.user.fullname }}</a></td>
+                  <td><a href="{{ url_for('report', id=r.id) }}">{{ r.total_value|format_currency }}</a></td>
+                </tr>
+              {% else %}
+                <tr>
+                  <td colspan="6"><em>(No reports found)</em></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  <p>
+    <a class="btn" href="{{ url_for('report_new')}}">File a new report...</a>
+  </p>
+{% endblock %}
