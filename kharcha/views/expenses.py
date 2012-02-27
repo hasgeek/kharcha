@@ -4,7 +4,7 @@
 Manage expense reports
 """
 
-from flask import g, flash, url_for, render_template, Markup, request, redirect
+from flask import g, flash, url_for, render_template, Markup, request, redirect, abort
 from werkzeug.datastructures import MultiDict
 from coaster import format_currency as coaster_format_currency
 from baseframe.forms import render_form, render_redirect, render_delete_sqla, ConfirmDeleteForm
@@ -23,9 +23,18 @@ def format_currency(value):
 
 
 @app.route('/reports/')
+@lastuser.requires_login
 def reports():
     # Sort reports by status
-    reports = ExpenseReportWorkflow.sort_documents(ExpenseReport.query.order_by('updated_at').all())
+    query = ExpenseReport.query.order_by('updated_at')
+    if 'reviewer' in lastuser.permissions():
+        # Get all reports owned by this user and in states where the user can review them
+        query = ExpenseReport.query.filter(db.or_(
+            ExpenseReport.user == g.user,
+            ExpenseReport.status.in_(ExpenseReportWorkflow.reviewable.value)))
+    else:
+        query = ExpenseReport.query.filter_by(user=g.user)
+    reports = ExpenseReportWorkflow.sort_documents(query.order_by('updated_at').all())
     return render_template('reports.html', reports=reports)
 
 
@@ -49,11 +58,10 @@ def report_new():
 @app.route('/reports/<int:id>', methods=['GET', 'POST'])
 @lastuser.requires_login
 def report(id):
-    # TODO: Allow reviewers to view
     report = ExpenseReport.query.get_or_404(id)
-    if report.user != g.user:
-        abort(403)
     workflow = report.workflow()
+    if not workflow.can_view():
+        abort(403)
     expenseform = ExpenseForm()
     expenseform.report = report
     if expenseform.validate_on_submit():
@@ -89,23 +97,23 @@ def report(id):
 @app.route('/reports/<int:id>/expensetable')
 @lastuser.requires_login
 def report_expensetable(id):
-    # TODO: Allow reviewers to view
     report = ExpenseReport.query.get_or_404(id)
-    if report.user != g.user:
+    workflow = report.workflow()
+    if not workflow.can_view():
         abort(403)
     return render_template('expensetable.html',
         report = report,
-        workflow = report.workflow())
+        workflow = workflow)
 
 
 @app.route('/reports/<int:id>/edit', methods=['GET', 'POST'])
 @lastuser.requires_login
 def report_edit(id):
     report = ExpenseReport.query.get_or_404(id)
-    if report.user != g.user:
+    workflow = report.workflow()
+    if not workflow.can_view():
         abort(403)
-    wf = report.workflow()
-    if not wf.editable():
+    if not workflow.can_edit():
         return render_template('baseframe/message.html', message=u"You cannot edit this report at this time.")
     # All okay. Allow editing
     form = ExpenseReportForm(obj=report)
@@ -123,10 +131,10 @@ def report_edit(id):
 @lastuser.requires_login
 def report_delete(id):
     report = ExpenseReport.query.get_or_404(id)
-    if report.user != g.user:
+    workflow = report.workflow()
+    if not workflow.can_view():
         abort(403)
-    wf = report.workflow()
-    if not wf.draft():
+    if not workflow.draft():
         # Only drafts can be deleted
         return render_template('baseframe/message.html', message=u"Only draft expense reports can be deleted.")
     # Confirm delete
@@ -140,10 +148,10 @@ def report_delete(id):
 @lastuser.requires_login
 def expense_delete(rid, eid):
     report = ExpenseReport.query.get_or_404(rid)
-    if report.user != g.user:
-        abort(403)
     workflow = report.workflow()
-    if not workflow.editable():
+    if workflow.can_view():
+        abort(403)
+    if not workflow.can_edit():
         abort(403)
     expense = Expense.query.filter_by(report=report, id=eid).first_or_404()
     form = ConfirmDeleteForm()

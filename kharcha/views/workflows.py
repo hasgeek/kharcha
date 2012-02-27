@@ -4,6 +4,7 @@ from flask import g, session
 from docflow import (DocumentWorkflow, WorkflowState, WorkflowStateGroup,
     WorkflowPermissionException, WorkflowTransitionException)
 from kharcha.models import REPORT_STATUS, ExpenseReport
+from kharcha.views.login import lastuser
 
 class ExpenseReportWorkflow(DocumentWorkflow):
     """
@@ -20,8 +21,18 @@ class ExpenseReportWorkflow(DocumentWorkflow):
     withdrawn = WorkflowState(REPORT_STATUS.WITHDRAWN, title=u"Withdrawn")
     closed = WorkflowState(REPORT_STATUS.CLOSED, title=u"Closed")
 
+    #: States in which an owner can edit
     editable = WorkflowStateGroup([REPORT_STATUS.DRAFT, REPORT_STATUS.REVIEW], title=u"Editable")
+    #: States in which a reviewer can view
+    reviewable = WorkflowStateGroup([REPORT_STATUS.PENDING,
+                                     REPORT_STATUS.ACCEPTED,
+                                     REPORT_STATUS.REJECTED,
+                                     REPORT_STATUS.CLOSED], title=u"Reviewable")
 
+    # The context parameter is mandated by docflow but not required in Flask
+    # apps because Flask provides direct access to thread-local context
+    # variables such as `request` and `g`. We accept the parameter and pass
+    # it around, but don't bother to read it.
     def permissions(self, context=None):
         """
         Permissions available to current user.
@@ -29,9 +40,7 @@ class ExpenseReportWorkflow(DocumentWorkflow):
         base_permissions = super(ExpenseReportWorkflow, self).permissions(context)
         if self._document.user == g.user:
             base_permissions.append('owner')
-        # TODO: Check if the user is a reviewer
-        if 'lastuser_userinfo' in session:
-            base_permissions.extend(session['lastuser_userinfo']['permissions'])
+        base_permissions.extend(lastuser.permissions())
         return base_permissions
 
     @draft.transition(pending, 'owner', title=u"Submit")
@@ -96,6 +105,22 @@ class ExpenseReportWorkflow(DocumentWorkflow):
         # TODO: Notify owner of closure.
         pass
 
+    def can_view(self):
+        """
+        Can the current user view this?
+        """
+        permissions = self.permissions()
+        if 'owner' in permissions:
+            return True
+        if 'reviewer' in permissions and self.reviewable():
+            return True
+        return False
+
+    def can_edit(self):
+        """
+        Can the current user edit this?
+        """
+        return 'owner' in self.permissions() and self.editable()
 
 # Apply this workflow on ExpenseReport objects
 ExpenseReportWorkflow.apply_on(ExpenseReport)
