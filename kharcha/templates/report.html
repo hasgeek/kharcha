@@ -1,23 +1,29 @@
 {% extends "layout.html" %}
 {% from "macros.html" import expensetable, newexpense, expense_script, expense_table_script %}
-{% block title %}Expense report: {{ report.title }}{% endblock %}
+{% block title %}{{ report.title }}{% endblock %}
 {% block headline %}{% endblock %}
 {% block content %}
   <div class="row section">
     <div class="span6">
-      <div class="page-header"><h1>{{ self.title() }}</h1></div>
+      <div class="page-header">
+        <h3>Report #{{ report.id }}</h3>
+        <h1>{{ self.title() }}</h1>
+      </div>
       {{ report.description|safe }}
     </div>
     <div class="span3">
       <ul class="well nav nav-list">
         <li><i class="icon-user"></i> {{ report.user.fullname }}</li>
         <li><i class="icon-calendar"></i> {{ report.created_at|longdate }}</li>
+        {% if report.budget -%}
+          <li><i class="icon-book"></i> {{ report.budget.title }}</li>
+        {%- endif %}
         <li><i class="icon-cog"></i> Status: {{ workflow.state.title }}</li>
         {% if workflow.editable() -%}
           <li><a href="{{ url_for('report_edit', id=report.id) }}"><i class="icon-pencil"></i> Edit details...</a></li>
         {%- endif %}
         {% if workflow.draft() -%}
-          <li><a href="{{ url_for('report_delete', id=report.id) }}"><i class="icon-remove"></i> Delete...</a></li>
+          <li><a href="{{ url_for('report_delete', id=report.id) }}"><i class="icon-trash"></i> Delete...</a></li>
         {% endif %}
       </ul>
     </div>
@@ -32,14 +38,19 @@
         <button type="submit" class="btn btn-primary">{{ transitions['submit']['title'] }}</button>
       </form>
     {% endif %}
+    {% if 'resubmit' in transitions %}
+      <form class="form-inline form-button" method="POST" action="{{ url_for('report_resubmit', id=report.id) }}">
+        <button type="submit" class="btn btn-primary">{{ transitions['resubmit']['title'] }}</button>
+      </form>
+    {% endif %}
     {% if 'accept' in transitions %}
       <form class="form-inline form-button" method="POST" action="{{ url_for('report_accept', id=report.id) }}">
         <button type="submit" class="btn btn-primary">{{ transitions['accept']['title'] }}</button>
       </form>
     {% endif %}
-    {% if 'return' in transitions %}
+    {% if 'return_for_review' in transitions %}
       <form class="form-inline form-button" method="POST" action="{{ url_for('report_return', id=report.id) }}">
-        <button type="submit" class="btn btn-warning">{{ transitions['return']['title'] }}</button>
+        <button type="submit" class="btn btn-warning">{{ transitions['return_for_review']['title'] }}</button>
       </form>
     {% endif %}
     {% if 'reject' in transitions %}

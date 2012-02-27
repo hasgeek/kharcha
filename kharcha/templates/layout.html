@@ -17,14 +17,14 @@
         <li><a href="{{ url_for('receipt_new') }}"><i class="icon-camera"></i> Upload a receipt...</a></li>
         <li {%- if receipts %} class="active"{% endif %}><a href="{{ url_for('settlements') }}"><i class="icon-envelope {%- if receipts %} icon-whiet {%- endif %}"></i> Settlements</a></li>
         {% if budget %}
-          {{ budget_list(budgets, selected=budget) }}
+          {{ budget_list(budgets, selected=budget, permissions=permissions) }}
         {% else %}
-          {{ budget_list(budgets) }}
+          {{ budget_list(budgets, permissions=permissions) }}
         {% endif %}
         {% if category %}
-          {{ category_list(categories, selected=category) }}
+          {{ category_list(categories, selected=category, permissions=permissions) }}
         {% else %}        
-          {{ category_list(categories) }}
+          {{ category_list(categories, permissions=permissions) }}
         {% endif %}
       </ul>
     </div>

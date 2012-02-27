@@ -38,21 +38,25 @@ def reports():
     return render_template('reports.html', reports=reports)
 
 
+def report_edit_internal(form, report=None, workflow=None):
+    if form.validate_on_submit():
+        if report is None:
+            report = ExpenseReport()
+            report.user = g.user
+            db.session.add(report)
+        form.populate_obj(report)
+        db.session.commit()
+        return redirect(url_for('report', id=report.id), code=303)
+    # TODO: Ajax handling here (but then again, is it required?)
+    return render_template('reportnew.html',
+        form=form, report=report, workflow=workflow)
+
+
 @app.route('/reports/new', methods=['GET', 'POST'])
 @lastuser.requires_login
 def report_new():
-    form = ExpenseReportForm()
-    if form.validate_on_submit():
-        report = ExpenseReport()
-        form.populate_obj(report)
-        report.user = g.user
-        db.session.add(report)
-        db.session.commit()
-        flash("Created new report '%s'." % report.title, "success")
-        return render_redirect(url_for('report', id=report.id), code=303)
-    return render_form(form=form, title=u"Submit an expense report",
-        formid="report_new", submit=Markup(u'Add details &raquo;'),
-        cancel_url=url_for('reports'), ajax=True)
+    form = ExpenseReportForm(prefix='report')
+    return report_edit_internal(form)
 
 
 @app.route('/reports/<int:id>', methods=['GET', 'POST'])
@@ -102,8 +106,7 @@ def report_expensetable(id):
     if not workflow.can_view():
         abort(403)
     return render_template('expensetable.html',
-        report = report,
-        workflow = workflow)
+        report=report, workflow=workflow)
 
 
 @app.route('/reports/<int:id>/edit', methods=['GET', 'POST'])
@@ -114,9 +117,12 @@ def report_edit(id):
     if not workflow.can_view():
         abort(403)
     if not workflow.can_edit():
-        return render_template('baseframe/message.html', message=u"You cannot edit this report at this time.")
-    # All okay. Allow editing
+        return render_template('baseframe/message.html',
+            message=u"You cannot edit this report at this time.")
     form = ExpenseReportForm(obj=report)
+    return report_edit_internal(form, report, workflow)
+
+    # All okay. Allow editing
     if form.validate_on_submit():
         form.populate_obj(report)
         db.session.commit()
@@ -171,11 +177,23 @@ def expense_delete(rid, eid):
 @lastuser.requires_login
 def report_submit(id):
     report = ExpenseReport.query.get_or_404(id)
-    if report.user != g.user:
-        abort(403)
     wf = report.workflow()
     try:
         wf.submit()
+    except (WorkflowPermissionException, WorkflowTransitionException):
+        abort(403)
+    db.session.commit()
+    flash("Expense report '%s' has been submitted." % report.title, "success")
+    return redirect(url_for('reports'), code=303)
+
+
+@app.route('/reports/<int:id>/resubmit', methods=['POST'])
+@lastuser.requires_login
+def report_resubmit(id):
+    report = ExpenseReport.query.get_or_404(id)
+    wf = report.workflow()
+    try:
+        wf.resubmit()
     except (WorkflowPermissionException, WorkflowTransitionException):
         abort(403)
     db.session.commit()
@@ -187,8 +205,6 @@ def report_submit(id):
 @lastuser.requires_login
 def report_accept(id):
     report = ExpenseReport.query.get_or_404(id)
-    if report.user != g.user:
-        abort(403)
     wf = report.workflow()
     try:
         wf.accept()
@@ -203,8 +219,6 @@ def report_accept(id):
 @lastuser.requires_login
 def report_return(id):
     report = ExpenseReport.query.get_or_404(id)
-    if report.user != g.user:
-        abort(403)
     wf = report.workflow()
     try:
         wf.return_for_review()
@@ -219,8 +233,6 @@ def report_return(id):
 @lastuser.requires_login
 def report_reject(id):
     report = ExpenseReport.query.get_or_404(id)
-    if report.user != g.user:
-        abort(403)
     wf = report.workflow()
     try:
         wf.reject()
@@ -235,8 +247,6 @@ def report_reject(id):
 @lastuser.requires_login
 def report_discard(id):
     report = ExpenseReport.query.get_or_404(id)
-    if report.user != g.user:
-        abort(403)
     wf = report.workflow()
     try:
         if wf.draft():
@@ -254,8 +264,6 @@ def report_discard(id):
 @lastuser.requires_login
 def report_close(id):
     report = ExpenseReport.query.get_or_404(id)
-    if report.user != g.user:
-        abort(403)
     wf = report.workflow()
     try:
         wf.close()

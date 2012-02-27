@@ -10,6 +10,9 @@
       cache: false,
       success: function(data) {
         $("#expense-table").replaceWith(data);
+        // Focus on date only after redrawing the table so that
+        // the date widget is positioned properly
+        $("#expense-date").focus();
       }
     });
   });

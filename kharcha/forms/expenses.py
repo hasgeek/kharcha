@@ -63,7 +63,7 @@ class ExpenseReportForm(Form):
     Create or edit an expense report.
     """
     title = wtf.TextField(u"Title", validators=[wtf.Required()],
-        description = u"Summary of expenses")
+        description = u"What are these expenses for?")
     budget = wtf.QuerySelectField(u"Budget", validators=[wtf.Optional()],
         query_factory=sorted_budgets, get_label='title', allow_blank=True,
         description=u"The budget source for these expenses")
@@ -71,7 +71,7 @@ class ExpenseReportForm(Form):
         description=u"Currency for expenses in this report",
         choices=CURRENCIES)
     description = RichTextField(u"Description", validators=[wtf.Optional()],
-        description=u"What are these expenses for?")
+        description=u"Notes on the expenses")
 
 class ExpenseForm(Form):
     """

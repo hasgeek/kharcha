@@ -6,6 +6,7 @@ from flask import render_template
 from kharcha import app
 from kharcha.models import Category, Budget
 from kharcha.views.workflows import ExpenseReportWorkflow
+from kharcha.views.login import lastuser
 
 tz = timezone(app.config['TIMEZONE'])
 
@@ -25,6 +26,7 @@ def sidebarvars():
         'categories': Category.query.order_by('title').all(),
         'budgets': Budget.query.order_by('title').all(),
         'report_states': ExpenseReportWorkflow.states(),
+        'permissions': lastuser.permissions(),
     }
 
 @app.route('/')
