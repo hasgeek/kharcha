@@ -1,0 +1,91 @@
+{% extends "layout.html" %}
+{% from "macros.html" import expensetable %}
+{% from "baseframe/forms.html" import richtext_editor %}
+{% block title %}{{ report.title or "New expense report"}}{% endblock %}
+{% block headline %}{% endblock %}
+{% block content %}
+  <form method="POST">
+    <div class="row section">
+      <div class="span6">
+        {% if report %}
+          <h3>Report #{{ report.id }}</h3>
+        {% else %}
+          <p class="lead">
+            An expense report collects all related expenses in one sheet.
+          </p>
+        {% endif %}
+        {%- if form.errors %}
+          <div class="alert alert-error">Please correct the indicated errors</div>
+        {%- endif %}
+        {{ form.hidden_tag() }}
+        <h2>{{ form.title.label.text }} <small>{{ form.title.description }}{% if form.title.flags.required %} (required){% endif %}</small></h2>
+        <span class="control-group{% if form.title.errors %} error{% endif %}">{{ form.title(class="input-primary span6", autofocus="autofocus") }}</span>
+        <div class="section">
+          <h3>{{ form.description.label.text }} <small>{{ form.description.description }} (optional)</small></h3>
+          <span class="control-group{% if form.description.errors %} error{% endif %}">{{ form.description }}</span>
+        </div>
+        <div class="row">
+          <div class="span3">
+            {{ form.currency.label }}
+            <span class="control-group{% if form.currency.errors %} error{% endif %}">{{ form.currency }}</span>
+            <p class="help-block">{{ form.currency.description }}</p>
+          </div>
+          <div class="span3">
+            {{ form.budget.label }}
+            <span class="control-group{% if form.budget.errors %} error{% endif %}">{{ form.budget }}</span>
+            <p class="help-block">{{ form.budget.description }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="span3">
+        <ul class="well nav nav-list section">
+          {%- if report %}
+            <li><i class="icon-user"></i> {{ report.user.fullname }}</li>
+            <li><i class="icon-calendar"></i> {{ report.created_at|longdate }}</li>
+            <li><i class="icon-cog"></i> Status: {{ workflow.state.title }}</li>
+          {%- else -%}
+            <li><i class="icon-user"></i> {{ g.user.fullname }}</li>
+            <li><i class="icon-calendar"></i> Today</li>
+            <li><i class="icon-cog"></i> Status: New</li>
+          {%- endif %}
+        </ul>
+        <button type="submit" class="btn btn-primary btn-large">{% if report.id %}Save{% else %}Continue &raquo;{% endif %}</button>
+        <a href="{% if report %}{{ url_for('report', id=report.id) }}{% else %}{{ url_for('reports') }}{% endif %}" class="btn btn-large">Cancel</a>
+      </div>
+    </div>
+  </form>
+  {%- if report %}
+    {{ expensetable(report, workflow, editlinks=false) }}
+  {% else %}
+    <h3>Expenses <small>Click on Continue to add and edit expenses</small></h3>
+    <table id="expense-table" class="table table-bordered table-condensed table-disabled">
+      <thead>
+        <th class="num">#</th>
+        <th>Date</th>
+        <th>Category</th>
+        <th>Description</th>
+        <th class="num">Amount</th>
+      </thead>
+      <tbody>
+        {%- for counter in range(1,4) %}
+          <tr>
+            <td class="num">{% if loop.last %}&hellip;{% else %}{{ counter }}{% endif %}</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="num"></td>
+          </tr>
+        {%- endfor %}
+        <tr>
+          <th class="num"></th>
+          <th colspan="3">Total</th>
+          <th class="num"></th>
+        </tr>
+      </tbody>
+    </table>
+  {% endif %}
+{% endblock %}
+
+{% block footerscripts %}
+  {{ richtext_editor() }}
+{% endblock %}

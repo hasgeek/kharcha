@@ -18,7 +18,7 @@
   {%- endif %}
 {% endmacro %}
 
-{% macro expensetable(report, workflow) %}
+{% macro expensetable(report, workflow, editlinks=true) %}
   <table id="expense-table" class="table table-bordered table-condensed">
     <thead>
       <th class="num">#</th>
@@ -36,7 +36,7 @@
           <td data-field="description" data-value="{{ expense.description }}">{{ expense.description }}</td>
           <td data-field="amount" data-value="{{ expense.amount }}" class="num">
             {{ expense.amount|format_currency }}
-            {%- if workflow.editable() %}
+            {%- if editlinks and workflow.can_edit() %}
               <a href="#" class="link-util expense-edit" data-id="{{ expense.id }}" title="Edit"><i class="icon-pencil"></i></a>
               <a href="{{ url_for('expense_delete', rid=report.id, eid=expense.id) }}" class="link-util expense-delete" data-id="{{ expense.id }}" title="Delete"><i class="icon-remove"></i></a>
             {%- endif %}
