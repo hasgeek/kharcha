@@ -244,13 +244,13 @@ def report_reject(id):
     return redirect(url_for('reports'), code=303)
 
 
-@app.route('/reports/<int:id>/discard', methods=['POST'])
+@app.route('/reports/<int:id>/withdraw', methods=['POST'])
 @lastuser.requires_login
-def report_discard(id):
+def report_withdraw(id):
     report = ExpenseReport.query.get_or_404(id)
     wf = report.workflow()
     try:
-        wf.discard()
+        wf.withdraw()
     except (WorkflowPermissionException, WorkflowTransitionException):
         abort(403)
     db.session.commit()

@@ -82,10 +82,10 @@ class ExpenseReportWorkflow(DocumentWorkflow):
         # TODO: Notify owner
         pass
 
-    @review.transition(withdrawn, 'owner', title=u"Discard")
-    def discard(self, context=None):
+    @review.transition(withdrawn, 'owner', title=u"Withdraw")
+    def withdraw(self, context=None):
         """
-        Discard expense report.
+        Withdraw the expense report.
         """
         pass
 
