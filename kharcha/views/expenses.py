@@ -215,7 +215,7 @@ def report_accept(id):
     return redirect(url_for('reports'), code=303)
 
 
-@app.route('/reports/<int:id>/return', methods=['POST'])
+@app.route('/reports/<int:id>/return_for_review', methods=['POST'])
 @lastuser.requires_login
 def report_return(id):
     report = ExpenseReport.query.get_or_404(id)
