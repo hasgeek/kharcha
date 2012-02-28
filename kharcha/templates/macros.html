@@ -86,7 +86,6 @@
         replaceTarget: true,
       });
       $("#expense-cancel").click(function(e) {
-        e.stopPropagation();
         $("#newexpense").clearForm();
         $("#expense-id").val("");
         $("#expense-add").val("Add")

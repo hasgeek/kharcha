@@ -12,9 +12,9 @@ from baseframe.forms import render_form, render_redirect, render_delete_sqla, Co
 from kharcha import app
 from kharcha.forms import ExpenseReportForm, ExpenseForm
 from kharcha.views.login import lastuser
-from kharcha.views.workflows import (ExpenseReportWorkflow,
-    WorkflowPermissionException, WorkflowTransitionException)
-from kharcha.models import db, User, ExpenseReport, Expense, Category
+from kharcha.views.workflows import ExpenseReportWorkflow
+from docflow import WorkflowPermissionException, WorkflowTransitionException
+from kharcha.models import db, ExpenseReport, Expense
 
 
 @app.template_filter('format_currency')
@@ -225,7 +225,8 @@ def report_return(id):
     except (WorkflowPermissionException, WorkflowTransitionException):
         abort(403)
     db.session.commit()
-    flash("Expense report '%s' has been returned for review." % report.title, "success")
+    flash("Expense report '%s' has been returned for review." % report.title,
+        "success")
     return redirect(url_for('reports'), code=303)
 
 
@@ -249,10 +250,7 @@ def report_discard(id):
     report = ExpenseReport.query.get_or_404(id)
     wf = report.workflow()
     try:
-        if wf.draft():
-            wf.discard_draft()
-        else:
-            wf.discard_review()
+        wf.discard()
     except (WorkflowPermissionException, WorkflowTransitionException):
         abort(403)
     db.session.commit()

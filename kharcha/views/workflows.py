@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from flask import g, session
-from docflow import (DocumentWorkflow, WorkflowState, WorkflowStateGroup,
-    WorkflowPermissionException, WorkflowTransitionException)
+from flask import g
+from docflow import DocumentWorkflow, WorkflowState, WorkflowStateGroup
 from kharcha.models import REPORT_STATUS, ExpenseReport
 from kharcha.views.login import lastuser
+
 
 class ExpenseReportWorkflow(DocumentWorkflow):
     """
@@ -22,12 +22,10 @@ class ExpenseReportWorkflow(DocumentWorkflow):
     closed = WorkflowState(REPORT_STATUS.CLOSED, title=u"Closed")
 
     #: States in which an owner can edit
-    editable = WorkflowStateGroup([REPORT_STATUS.DRAFT, REPORT_STATUS.REVIEW], title=u"Editable")
+    editable = WorkflowStateGroup([draft, review], title=u"Editable")
     #: States in which a reviewer can view
-    reviewable = WorkflowStateGroup([REPORT_STATUS.PENDING,
-                                     REPORT_STATUS.ACCEPTED,
-                                     REPORT_STATUS.REJECTED,
-                                     REPORT_STATUS.CLOSED], title=u"Reviewable")
+    reviewable = WorkflowStateGroup([pending, accepted, rejected, closed],
+                                    title=u"Reviewable")
 
     # The context parameter is mandated by docflow but not required in Flask
     # apps because Flask provides direct access to thread-local context
@@ -37,7 +35,8 @@ class ExpenseReportWorkflow(DocumentWorkflow):
         """
         Permissions available to current user.
         """
-        base_permissions = super(ExpenseReportWorkflow, self).permissions(context)
+        base_permissions = super(ExpenseReportWorkflow,
+                                 self).permissions(context)
         if self._document.user == g.user:
             base_permissions.append('owner')
         base_permissions.extend(lastuser.permissions())
@@ -83,15 +82,8 @@ class ExpenseReportWorkflow(DocumentWorkflow):
         # TODO: Notify owner
         pass
 
-    @draft.transition(withdrawn, 'owner', title=u"Discard")
-    def discard_draft(self, context=None):
-        """
-        Discard expense report.
-        """
-        pass
-
     @review.transition(withdrawn, 'owner', title=u"Discard")
-    def discard_review(self, context=None):
+    def discard(self, context=None):
         """
         Discard expense report.
         """

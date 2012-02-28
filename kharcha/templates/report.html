@@ -58,14 +58,9 @@
         <button type="submit" class="btn btn-danger">{{ transitions['reject']['title'] }}</button>
       </form>
     {% endif %}
-    {% if 'discard_draft' in transitions %}
+    {% if 'discard' in transitions %}
       <form class="form-inline form-button" method="POST" action="{{ url_for('report_discard', id=report.id) }}">
-        <button type="submit" class="btn btn-danger">{{ transitions['discard_draft']['title'] }}</button>
-      </form>
-    {% endif %}
-    {% if 'discard_review' in transitions %}
-      <form class="form-inline form-button" method="POST" action="{{ url_for('report_discard', id=report.id) }}">
-        <button type="submit" class="btn btn-danger">{{ transitions['discard_review']['title'] }}</button>
+        <button type="submit" class="btn btn-danger">{{ transitions['discard']['title'] }}</button>
       </form>
     {% endif %}
     {% if 'close' in transitions %}

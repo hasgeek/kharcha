@@ -5,7 +5,7 @@
 {% block headline %}{% endblock %}
 {% block content %}
   <form method="POST">
-    <div class="row section">
+    <div class="row">
       <div class="span6">
         {% if report %}
           <h3>Report #{{ report.id }}</h3>
@@ -24,7 +24,7 @@
           <h3>{{ form.description.label.text }} <small>{{ form.description.description }} (optional)</small></h3>
           <span class="control-group{% if form.description.errors %} error{% endif %}">{{ form.description }}</span>
         </div>
-        <div class="row">
+        <div class="row section">
           <div class="span3">
             {{ form.currency.label }}
             <span class="control-group{% if form.currency.errors %} error{% endif %}">{{ form.currency }}</span>
@@ -35,6 +35,10 @@
             <span class="control-group{% if form.budget.errors %} error{% endif %}">{{ form.budget }}</span>
             <p class="help-block">{{ form.budget.description }}</p>
           </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">{% if report.id %}Save{% else %}Continue &raquo;{% endif %}</button>
+          <a href="{% if report %}{{ url_for('report', id=report.id) }}{% else %}{{ url_for('reports') }}{% endif %}" class="btn">Cancel</a>
         </div>
       </div>
       <div class="span3">
@@ -49,8 +53,6 @@
             <li><i class="icon-cog"></i> Status: New</li>
           {%- endif %}
         </ul>
-        <button type="submit" class="btn btn-primary btn-large">{% if report.id %}Save{% else %}Continue &raquo;{% endif %}</button>
-        <a href="{% if report %}{{ url_for('report', id=report.id) }}{% else %}{{ url_for('reports') }}{% endif %}" class="btn btn-large">Cancel</a>
       </div>
     </div>
   </form>
