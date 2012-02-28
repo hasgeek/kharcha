@@ -37,7 +37,7 @@
           </div>
         </div>
         <div class="form-actions">
-          <button type="submit" class="btn btn-primary">{% if report.id %}Save{% else %}Continue &raquo;{% endif %}</button>
+          <button type="submit" class="btn btn-primary">{% if report.id %}Save{% else %}Continue{% endif %}</button>
           <a href="{% if report %}{{ url_for('report', id=report.id) }}{% else %}{{ url_for('reports') }}{% endif %}" class="btn">Cancel</a>
         </div>
       </div>
