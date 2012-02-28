@@ -42,7 +42,8 @@ class ExpenseReportWorkflow(DocumentWorkflow):
         base_permissions.extend(lastuser.permissions())
         return base_permissions
 
-    @draft.transition(pending, 'owner', title=u"Submit")
+    @draft.transition(pending, 'owner', title=u"Submit",
+        description=u"Submit this expense report to a reviewer.")
     def submit(self, context=None):
         """
         Publish the review.
@@ -50,7 +51,8 @@ class ExpenseReportWorkflow(DocumentWorkflow):
         # TODO: Notify reviewers
         pass
 
-    @review.transition(pending, 'owner', title=u"Submit")
+    @review.transition(pending, 'owner', title=u"Submit",
+        description=u"Resubmit this expense report to a reviewer.")
     def resubmit(self, context=None):
         """
         Publish the review.
@@ -58,7 +60,8 @@ class ExpenseReportWorkflow(DocumentWorkflow):
         # TODO: Notify reviewers
         pass
 
-    @pending.transition(accepted, 'reviewer', title=u"Accept")
+    @pending.transition(accepted, 'reviewer', title=u"Accept",
+        description=u"Accept this expense report and queue it for reimbursements.")
     def accept(self, context=None):
         """
         Accept the expense report and mark for payout to owner.
@@ -66,7 +69,8 @@ class ExpenseReportWorkflow(DocumentWorkflow):
         # TODO: Notify owner of acceptance
         pass
 
-    @pending.transition(review, 'reviewer', title=u"Return for review")
+    @pending.transition(review, 'reviewer', title=u"Return for review",
+        description=u"Return this expense report to the submitter for review.")
     def return_for_review(self, context=None):
         """
         Return report to owner for review.
@@ -74,7 +78,8 @@ class ExpenseReportWorkflow(DocumentWorkflow):
         # TODO: Notify owner
         pass
 
-    @pending.transition(rejected, 'reviewer', title=u"Reject")
+    @pending.transition(rejected, 'reviewer', title=u"Reject",
+        description=u"Reject this expense report.")
     def reject(self, context=None):
         """
         Reject expense report.
@@ -82,14 +87,16 @@ class ExpenseReportWorkflow(DocumentWorkflow):
         # TODO: Notify owner
         pass
 
-    @review.transition(withdrawn, 'owner', title=u"Withdraw")
+    @review.transition(withdrawn, 'owner', title=u"Withdraw",
+        description=u"Withdraw this expense report.")
     def withdraw(self, context=None):
         """
         Withdraw the expense report.
         """
         pass
 
-    @accepted.transition(closed, 'reviewer', title=u"Close")
+    @accepted.transition(closed, 'reviewer', title=u"Close",
+        description=u"Mark this expense report as reimbursed.")
     def close(self, context=None):
         """
         Close expense report (indicates payment).

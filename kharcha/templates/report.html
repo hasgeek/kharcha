@@ -36,12 +36,12 @@
     <div class="form-actions">
       {% if 'submit' in transitions %}
         <form class="form-inline form-button" method="POST" action="{{ url_for('report_submit', id=report.id) }}">
-          <button type="submit" class="btn btn-primary confirm-submit">{{ transitions['submit']['title'] }}</button>
+          <button type="submit" data-description="{{ transitions['submit']['description'] }}" class="btn btn-primary confirm-submit">{{ transitions['submit']['title'] }}</button>
         </form>
       {% endif %}
       {% if 'resubmit' in transitions %}
         <form class="form-inline form-button" method="POST" action="{{ url_for('report_resubmit', id=report.id) }}">
-          <button type="submit" class="btn btn-primary confirm-submit">{{ transitions['resubmit']['title'] }}</button>
+          <button type="submit" data-description="{{ transitions['resubmit']['description'] }}" class="btn btn-primary confirm-submit">{{ transitions['resubmit']['title'] }}</button>
         </form>
       {% endif %}
       {% if 'accept' in transitions %}
@@ -51,22 +51,22 @@
       {% endif %}
       {% if 'return_for_review' in transitions %}
         <form class="form-inline form-button" method="POST" action="{{ url_for('report_return', id=report.id) }}">
-          <button type="submit" class="btn btn-warning confirm-submit">{{ transitions['return_for_review']['title'] }}</button>
+          <button type="submit" data-description="{{ transitions['return_for_review']['description'] }}" class="btn btn-warning confirm-submit">{{ transitions['return_for_review']['title'] }}</button>
         </form>
       {% endif %}
       {% if 'reject' in transitions %}
         <form class="form-inline form-button" method="POST" action="{{ url_for('report_reject', id=report.id) }}">
-          <button type="submit" class="btn btn-danger confirm-submit">{{ transitions['reject']['title'] }}</button>
+          <button type="submit" data-description="{{ transitions['reject']['description'] }}" class="btn btn-danger confirm-submit">{{ transitions['reject']['title'] }}</button>
         </form>
       {% endif %}
       {% if 'withdraw' in transitions %}
         <form class="form-inline form-button" method="POST" action="{{ url_for('report_withdraw', id=report.id) }}">
-          <button type="submit" class="btn btn-danger confirm-submit">{{ transitions['withdraw']['title'] }}</button>
+          <button type="submit" data-description="{{ transitions['withdraw']['description'] }}" class="btn btn-danger confirm-submit">{{ transitions['withdraw']['title'] }}</button>
         </form>
       {% endif %}
       {% if 'close' in transitions %}
         <form class="form-inline form-button" method="POST" action="{{ url_for('report_close', id=report.id) }}">
-          <button type="submit" class="btn btn-success confirm-submit">{{ transitions['close']['title'] }}</button>
+          <button type="submit" data-description="{{ transitions['close']['description'] }}" class="btn btn-success confirm-submit">{{ transitions['close']['title'] }}</button>
         </form>
       {% endif %}
     </div>
