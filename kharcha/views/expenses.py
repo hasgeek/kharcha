@@ -4,7 +4,9 @@
 Manage expense reports
 """
 
-from flask import g, flash, url_for, render_template, Markup, request, redirect, abort
+import csv
+import StringIO
+from flask import g, flash, url_for, render_template, request, redirect, abort, Response
 from werkzeug.datastructures import MultiDict
 from coaster import format_currency as coaster_format_currency
 from baseframe.forms import render_form, render_redirect, render_delete_sqla, ConfirmDeleteForm
@@ -92,10 +94,10 @@ def report(id):
     if request.is_xhr:
         return render_template("expense.html", report=report, expenseform=expenseform)
     return render_template('report.html',
-        report = report,
-        workflow = workflow,
-        transitions = workflow.transitions(),
-        expenseform = expenseform)
+        report=report,
+        workflow=workflow,
+        transitions=workflow.transitions(),
+        expenseform=expenseform)
 
 
 @app.route('/reports/<int:id>/expensetable')
@@ -107,6 +109,29 @@ def report_expensetable(id):
         abort(403)
     return render_template('expensetable.html',
         report=report, workflow=workflow)
+
+
+@app.route('/reports/<int:id>/csv')
+@lastuser.requires_login
+def report_csv(id):
+    report = ExpenseReport.query.get_or_404(id)
+    workflow = report.workflow()
+    if not workflow.can_view():
+        abort(403)
+    outfile = StringIO.StringIO()
+    out = csv.writer(outfile)
+    out.writerow(['Date', 'Category', 'Description', 'Amount'])
+    for expense in report.expenses:
+        out.writerow([expense.date.strftime('%Y-%m-%d'),
+                      expense.category.title.encode('utf-8'),
+                      expense.description.encode('utf-8'),
+                      '%.2f' % expense.amount])
+    response = Response(outfile.getvalue(),
+        content_type='text/csv; charset=utf-8',
+        headers={'Content-Disposition': 'attachment; filename="%d.csv"' % report.id,
+                 'Cache-Control': 'no-store',
+                 'Pragma': 'no-cache'})
+    return response
 
 
 @app.route('/reports/<int:id>/edit', methods=['GET', 'POST'])

@@ -21,9 +21,9 @@ class BudgetForm(Form):
     Create or edit a budget.
     """
     title = wtf.TextField(u"Budget title", validators=[wtf.Required()],
-        description = u"The name of your project or other budget source")
+        description=u"The name of your project or other budget source")
     description = RichTextField(u"Description",
-        description = u"Description of the budget")
+        description=u"Description of the budget")
 
     def validate_title(self, field):
         """
@@ -39,7 +39,7 @@ class CategoryForm(Form):
     Create or edit a category.
     """
     title = wtf.TextField(u"Title", validators=[wtf.Required()],
-        description = u"The name of the category")
+        description=u"The name of the category")
 
     def validate_title(self, field):
         """
@@ -63,7 +63,7 @@ class ExpenseReportForm(Form):
     Create or edit an expense report.
     """
     title = wtf.TextField(u"Title", validators=[wtf.Required()],
-        description = u"What are these expenses for?")
+        description=u"What are these expenses for?")
     budget = wtf.QuerySelectField(u"Budget", validators=[wtf.Optional()],
         query_factory=sorted_budgets, get_label='title', allow_blank=True,
         description=u"The budget source for these expenses")
@@ -72,6 +72,7 @@ class ExpenseReportForm(Form):
         choices=CURRENCIES)
     description = RichTextField(u"Description", validators=[wtf.Optional()],
         description=u"Notes on the expenses")
+
 
 class ExpenseForm(Form):
     """

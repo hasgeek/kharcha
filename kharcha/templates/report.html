@@ -25,6 +25,7 @@
         {% if workflow.draft() -%}
           <li><a href="{{ url_for('report_delete', id=report.id) }}"><i class="icon-trash"></i> Delete...</a></li>
         {% endif %}
+        <li><a href="{{ url_for('report_csv', id=report.id) }}"><i class="icon-download"></i> Download as CSV</a></li>
       </ul>
     </div>
   </div>
