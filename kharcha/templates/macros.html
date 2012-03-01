@@ -94,6 +94,11 @@
         $("#newexpense .control-group.error").removeClass("error");
         return false;
       });
+      $("#newexpense").keydown(function(e) {
+        if (e.keyCode == 27) {
+          $("#expense-cancel").trigger('click');
+        };
+      });
     });
   </script>
 {% endmacro %}
