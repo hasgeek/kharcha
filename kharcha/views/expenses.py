@@ -9,6 +9,7 @@ import StringIO
 from flask import g, flash, url_for, render_template, request, redirect, abort, Response
 from werkzeug.datastructures import MultiDict
 from coaster import format_currency as coaster_format_currency
+from coaster.views import load_model
 from baseframe.forms import render_form, render_redirect, render_delete_sqla, ConfirmDeleteForm
 
 from kharcha import app
@@ -63,8 +64,8 @@ def report_new():
 
 @app.route('/reports/<int:id>', methods=['GET', 'POST'])
 @lastuser.requires_login
-def report(id):
-    report = ExpenseReport.query.get_or_404(id)
+@load_model(ExpenseReport, {'id': 'id'}, 'report')
+def report(report):
     workflow = report.workflow()
     if not workflow.can_view():
         abort(403)
@@ -102,8 +103,8 @@ def report(id):
 
 @app.route('/reports/<int:id>/expensetable')
 @lastuser.requires_login
-def report_expensetable(id):
-    report = ExpenseReport.query.get_or_404(id)
+@load_model(ExpenseReport, {'id': 'id'}, 'report')
+def report_expensetable(report):
     workflow = report.workflow()
     if not workflow.can_view():
         abort(403)
@@ -113,8 +114,8 @@ def report_expensetable(id):
 
 @app.route('/reports/<int:id>/csv')
 @lastuser.requires_login
-def report_csv(id):
-    report = ExpenseReport.query.get_or_404(id)
+@load_model(ExpenseReport, {'id': 'id'}, 'report')
+def report_csv(report):
     workflow = report.workflow()
     if not workflow.can_view():
         abort(403)
@@ -136,8 +137,8 @@ def report_csv(id):
 
 @app.route('/reports/<int:id>/edit', methods=['GET', 'POST'])
 @lastuser.requires_login
-def report_edit(id):
-    report = ExpenseReport.query.get_or_404(id)
+@load_model(ExpenseReport, {'id': 'id'}, 'report')
+def report_edit(report):
     workflow = report.workflow()
     if not workflow.can_view():
         abort(403)
@@ -160,8 +161,8 @@ def report_edit(id):
 
 @app.route('/reports/<int:id>/delete', methods=['GET', 'POST'])
 @lastuser.requires_login
-def report_delete(id):
-    report = ExpenseReport.query.get_or_404(id)
+@load_model(ExpenseReport, {'id': 'id'}, 'report')
+def report_delete(report):
     workflow = report.workflow()
     if not workflow.can_view():
         abort(403)
@@ -177,14 +178,17 @@ def report_delete(id):
 
 @app.route('/reports/<int:rid>/<int:eid>/delete', methods=['GET', 'POST'])
 @lastuser.requires_login
-def expense_delete(rid, eid):
-    report = ExpenseReport.query.get_or_404(rid)
+@load_model([(ExpenseReport, {'id': 'rid'}, 'report'),
+             (Expense, {'report': 'report', 'id': 'eid'}, 'expense')
+             ])
+def expense_delete(report, expense):
+    #report = ExpenseReport.query.get_or_404(rid)
     workflow = report.workflow()
-    if workflow.can_view():
+    if not workflow.can_view():
         abort(403)
     if not workflow.can_edit():
         abort(403)
-    expense = Expense.query.filter_by(report=report, id=eid).first_or_404()
+    #expense = Expense.query.filter_by(report=report, id=eid).first_or_404()
     form = ConfirmDeleteForm()
     if form.validate_on_submit():
         if 'delete' in request.form:
@@ -192,7 +196,7 @@ def expense_delete(rid, eid):
             db.session.commit()
             report.update_total()
             db.session.commit()
-            return redirect(url_for('report', id=rid), code=303)
+            return redirect(url_for('report', id=report.id), code=303)
     return render_template('baseframe/delete.html', form=form, title=u"Confirm delete",
         message=u"Delete expense item '%s' for %s %s?" % (
             expense.description, report.currency, format_currency(expense.amount)))
@@ -200,98 +204,70 @@ def expense_delete(rid, eid):
 
 @app.route('/reports/<int:id>/submit', methods=['POST'])
 @lastuser.requires_login
-def report_submit(id):
-    report = ExpenseReport.query.get_or_404(id)
-    wf = report.workflow()
-    try:
-        wf.submit()
-    except (WorkflowPermissionException, WorkflowTransitionException):
-        abort(403)
+@load_model(ExpenseReport, {'id': 'id'}, 'report', workflow=True)
+def report_submit(wf):
+    wf.submit()
     db.session.commit()
-    flash("Expense report '%s' has been submitted." % report.title, "success")
+    flash("Expense report '%s' has been submitted." % wf.document.title, "success")
     return redirect(url_for('reports'), code=303)
 
 
 @app.route('/reports/<int:id>/resubmit', methods=['POST'])
 @lastuser.requires_login
-def report_resubmit(id):
-    report = ExpenseReport.query.get_or_404(id)
-    wf = report.workflow()
-    try:
-        wf.resubmit()
-    except (WorkflowPermissionException, WorkflowTransitionException):
-        abort(403)
+@load_model(ExpenseReport, {'id': 'id'}, 'report', workflow=True)
+def report_resubmit(wf):
+    wf.resubmit()
     db.session.commit()
-    flash("Expense report '%s' has been submitted." % report.title, "success")
+    flash("Expense report '%s' has been submitted." % wf.document.title, "success")
     return redirect(url_for('reports'), code=303)
 
 
 @app.route('/reports/<int:id>/accept', methods=['POST'])
 @lastuser.requires_login
-def report_accept(id):
-    report = ExpenseReport.query.get_or_404(id)
-    wf = report.workflow()
-    try:
-        wf.accept()
-    except (WorkflowPermissionException, WorkflowTransitionException):
-        abort(403)
+@load_model(ExpenseReport, {'id': 'id'}, 'report', workflow=True)
+def report_accept(wf):
+    wf.accept()
     db.session.commit()
-    flash("Expense report '%s' has been accepted." % report.title, "success")
+    flash("Expense report '%s' has been accepted." % wf.document.title, "success")
     return redirect(url_for('reports'), code=303)
 
 
 @app.route('/reports/<int:id>/return_for_review', methods=['POST'])
 @lastuser.requires_login
-def report_return(id):
-    report = ExpenseReport.query.get_or_404(id)
-    wf = report.workflow()
-    try:
-        wf.return_for_review()
-    except (WorkflowPermissionException, WorkflowTransitionException):
-        abort(403)
+@load_model(ExpenseReport, {'id': 'id'}, 'report', workflow=True)
+def report_return(wf):
+    wf.return_for_review()
     db.session.commit()
-    flash("Expense report '%s' has been returned for review." % report.title,
+    flash("Expense report '%s' has been returned for review." % wf.document.title,
         "success")
     return redirect(url_for('reports'), code=303)
 
 
 @app.route('/reports/<int:id>/reject', methods=['POST'])
 @lastuser.requires_login
-def report_reject(id):
-    report = ExpenseReport.query.get_or_404(id)
-    wf = report.workflow()
-    try:
-        wf.reject()
-    except (WorkflowPermissionException, WorkflowTransitionException):
-        abort(403)
+@load_model(ExpenseReport, {'id': 'id'}, 'report', workflow=True)
+def report_reject(wf):
+    wf.reject()
     db.session.commit()
-    flash("Expense report '%s' has been rejected." % report.title, "success")
+    flash("Expense report '%s' has been rejected." % wf.document.title, "success")
     return redirect(url_for('reports'), code=303)
 
 
 @app.route('/reports/<int:id>/withdraw', methods=['POST'])
 @lastuser.requires_login
-def report_withdraw(id):
-    report = ExpenseReport.query.get_or_404(id)
-    wf = report.workflow()
-    try:
-        wf.withdraw()
-    except (WorkflowPermissionException, WorkflowTransitionException):
-        abort(403)
+@load_model(ExpenseReport, {'id': 'id'}, 'report', workflow=True)
+def report_withdraw(wf):
+    wf.withdraw()
     db.session.commit()
-    flash("Expense report '%s' has been withdrawn." % report.title, "success")
+    flash("Expense report '%s' has been withdrawn." % wf.document.title, "success")
     return redirect(url_for('reports'), code=303)
 
 
 @app.route('/reports/<int:id>/close', methods=['POST'])
 @lastuser.requires_login
-def report_close(id):
-    report = ExpenseReport.query.get_or_404(id)
-    wf = report.workflow()
-    try:
-        wf.close()
-    except (WorkflowPermissionException, WorkflowTransitionException):
-        abort(403)
+@load_model(ExpenseReport, {'id': 'id'}, 'report', workflow=True)
+def report_close(wf):
+    wf.close()
     db.session.commit()
-    flash("Expense report '%s' has been closed." % report.title, "success")
+    flash("Expense report '%s' has been closed." % wf.document.title, "success")
     return redirect(url_for('reports'), code=303)

@@ -27,24 +27,20 @@ class ExpenseReportWorkflow(DocumentWorkflow):
     reviewable = WorkflowStateGroup([pending, accepted, rejected, closed],
                                     title=u"Reviewable")
 
-    # The context parameter is mandated by docflow but not required in Flask
-    # apps because Flask provides direct access to thread-local context
-    # variables such as `request` and `g`. We accept the parameter and pass
-    # it around, but don't bother to read it.
-    def permissions(self, context=None):
+    def permissions(self):
         """
         Permissions available to current user.
         """
         base_permissions = super(ExpenseReportWorkflow,
-                                 self).permissions(context)
-        if self._document.user == g.user:
+                                 self).permissions()
+        if self.document.user == g.user:
             base_permissions.append('owner')
         base_permissions.extend(lastuser.permissions())
         return base_permissions
 
     @draft.transition(pending, 'owner', title=u"Submit", category="primary",
         description=u"Submit this expense report to a reviewer.")
-    def submit(self, context=None):
+    def submit(self):
         """
         Publish the review.
         """
@@ -53,7 +49,7 @@ class ExpenseReportWorkflow(DocumentWorkflow):
 
     @review.transition(pending, 'owner', title=u"Submit", category="primary",
         description=u"Resubmit this expense report to a reviewer.")
-    def resubmit(self, context=None):
+    def resubmit(self):
         """
         Publish the review.
         """
@@ -62,7 +58,7 @@ class ExpenseReportWorkflow(DocumentWorkflow):
 
     @pending.transition(accepted, 'reviewer', title=u"Accept", category="primary",
         description=u"Accept this expense report and queue it for reimbursements.")
-    def accept(self, context=None):
+    def accept(self):
         """
         Accept the expense report and mark for payout to owner.
         """
@@ -71,7 +67,7 @@ class ExpenseReportWorkflow(DocumentWorkflow):
 
     @pending.transition(review, 'reviewer', title=u"Return for review", category="warning",
         description=u"Return this expense report to the submitter for review.")
-    def return_for_review(self, context=None):
+    def return_for_review(self):
         """
         Return report to owner for review.
         """
@@ -80,7 +76,7 @@ class ExpenseReportWorkflow(DocumentWorkflow):
 
     @pending.transition(rejected, 'reviewer', title=u"Reject", category="danger",
         description=u"Reject this expense report.")
-    def reject(self, context=None):
+    def reject(self):
         """
         Reject expense report.
         """
@@ -89,7 +85,7 @@ class ExpenseReportWorkflow(DocumentWorkflow):
 
     @review.transition(withdrawn, 'owner', title=u"Withdraw", category="danger",
         description=u"Withdraw this expense report.")
-    def withdraw(self, context=None):
+    def withdraw(self):
         """
         Withdraw the expense report.
         """
@@ -97,7 +93,7 @@ class ExpenseReportWorkflow(DocumentWorkflow):
 
     @accepted.transition(closed, 'reviewer', title=u"Close", category="success",
         description=u"Mark this expense report as reimbursed.")
-    def close(self, context=None):
+    def close(self):
         """
         Close expense report (indicates payment).
         """

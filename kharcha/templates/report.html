@@ -70,6 +70,7 @@
         e.stopPropagation();
         $("#confirm-transition-confirm").unbind('click').click(function() {
           form.submit();
+          return false;
         });
         $("#confirm-transition").find('h2').html(button.html());
         $("#confirm-transition").find('.modal-body').html(button.attr('data-description'));
