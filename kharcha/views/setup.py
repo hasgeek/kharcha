@@ -10,7 +10,7 @@ from baseframe.forms import render_form, render_redirect, render_delete_sqla
 from kharcha import app
 from kharcha.views.login import lastuser
 from kharcha.models import db, Budget, Category
-from kharcha.forms import BudgetForm, CategoryForm, ExpenseReportForm
+from kharcha.forms import BudgetForm, CategoryForm
 
 
 @app.route('/budgets/')
