@@ -12,7 +12,7 @@
         {%- if report %}
           <li class="active"><a href="{{ url_for('report', id=report.id) }}"><i class="icon-file icon-white"></i> Report: {{ report.title }}</a></li>
         {%- endif %}
-        <li><a href="{{ url_for('report_new') }}"><i class="icon-pencil"></i> File a new report...</a></li>
+        <li {%- if newreport %} class="active" {%- endif %}><a href="{{ url_for('report_new') }}"><i class="icon-pencil {%- if newreport %} icon-white {%- endif %}"></i> File a new report...</a></li>
         <li {%- if receipts %} class="active"{% endif %}><a href="{{ url_for('receipts') }}"><i class="icon-picture{%- if receipts %} icon-white {%- endif %}"></i> Your receipts</a></li>
         <li><a href="{{ url_for('receipt_new') }}"><i class="icon-camera"></i> Upload a receipt...</a></li>
         <li {%- if receipts %} class="active"{% endif %}><a href="{{ url_for('settlements') }}"><i class="icon-envelope {%- if receipts %} icon-whiet {%- endif %}"></i> Settlements</a></li>

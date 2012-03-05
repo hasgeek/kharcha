@@ -16,7 +16,6 @@ from kharcha import app
 from kharcha.forms import ExpenseReportForm, ExpenseForm
 from kharcha.views.login import lastuser
 from kharcha.views.workflows import ExpenseReportWorkflow
-from docflow import WorkflowPermissionException, WorkflowTransitionException
 from kharcha.models import db, ExpenseReport, Expense
 
 
@@ -51,8 +50,12 @@ def report_edit_internal(form, report=None, workflow=None):
         db.session.commit()
         return redirect(url_for('report', id=report.id), code=303)
     # TODO: Ajax handling here (but then again, is it required?)
+    if form and report is None:
+        newreport = True
+    else:
+        newreport = False
     return render_template('reportnew.html',
-        form=form, report=report, workflow=workflow)
+        form=form, report=report, workflow=workflow, newreport=newreport)
 
 
 @app.route('/reports/new', methods=['GET', 'POST'])
@@ -152,7 +155,7 @@ def report_edit(report):
     if form.validate_on_submit():
         form.populate_obj(report)
         db.session.commit()
-        flash("Edited report '%s'." % report.title, "success")
+        flash("Edited report '%s'." % report.title, 'success')
         return render_redirect(url_for('report', id=report.id), code=303)
     return render_form(form=form, title=u"Edit expense report",
         formid="report_edit", submit=u"Save",
@@ -206,9 +209,12 @@ def expense_delete(report, expense):
 @lastuser.requires_login
 @load_model(ExpenseReport, {'id': 'id'}, 'report', workflow=True)
 def report_submit(wf):
+    if wf.document.expenses == []:
+        flash(u"This expense report does not list any expenses.", 'error')
+        return redirect(url_for('report', id=wf.document.id))
     wf.submit()
     db.session.commit()
-    flash("Expense report '%s' has been submitted." % wf.document.title, "success")
+    flash(u"Expense report '%s' has been submitted." % wf.document.title, 'success')
     return redirect(url_for('reports'), code=303)
 
 
@@ -216,9 +222,12 @@ def report_submit(wf):
 @lastuser.requires_login
 @load_model(ExpenseReport, {'id': 'id'}, 'report', workflow=True)
 def report_resubmit(wf):
+    if wf.document.expenses == []:
+        flash(u"This expense report does not list any expenses.", 'error')
+        return redirect(url_for('report', id=wf.document.id))
     wf.resubmit()
     db.session.commit()
-    flash("Expense report '%s' has been submitted." % wf.document.title, "success")
+    flash(u"Expense report '%s' has been submitted." % wf.document.title, 'success')
     return redirect(url_for('reports'), code=303)
 
 
@@ -228,7 +237,7 @@ def report_resubmit(wf):
 def report_accept(wf):
     wf.accept()
     db.session.commit()
-    flash("Expense report '%s' has been accepted." % wf.document.title, "success")
+    flash(u"Expense report '%s' has been accepted." % wf.document.title, 'success')
     return redirect(url_for('reports'), code=303)
 
 
@@ -238,8 +247,8 @@ def report_accept(wf):
 def report_return(wf):
     wf.return_for_review()
     db.session.commit()
-    flash("Expense report '%s' has been returned for review." % wf.document.title,
-        "success")
+    flash(u"Expense report '%s' has been returned for review." % wf.document.title,
+        'success')
     return redirect(url_for('reports'), code=303)
 
 
@@ -249,7 +258,7 @@ def report_return(wf):
 def report_reject(wf):
     wf.reject()
     db.session.commit()
-    flash("Expense report '%s' has been rejected." % wf.document.title, "success")
+    flash(u"Expense report '%s' has been rejected." % wf.document.title, 'success')
     return redirect(url_for('reports'), code=303)
 
 
@@ -259,7 +268,7 @@ def report_reject(wf):
 def report_withdraw(wf):
     wf.withdraw()
     db.session.commit()
-    flash("Expense report '%s' has been withdrawn." % wf.document.title, "success")
+    flash(u"Expense report '%s' has been withdrawn." % wf.document.title, 'success')
     return redirect(url_for('reports'), code=303)
 
 
@@ -269,5 +278,5 @@ def report_withdraw(wf):
 def report_close(wf):
     wf.close()
     db.session.commit()
-    flash("Expense report '%s' has been closed." % wf.document.title, "success")
+    flash(u"Expense report '%s' has been closed." % wf.document.title, 'success')
     return redirect(url_for('reports'), code=303)

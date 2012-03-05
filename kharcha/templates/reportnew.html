@@ -45,7 +45,7 @@
         <ul class="well nav nav-list section">
           {%- if report %}
             <li><i class="icon-user"></i> {{ report.user.fullname }}</li>
-            <li><i class="icon-calendar"></i> {{ report.created_at|longdate }}</li>
+            <li><i class="icon-calendar"></i> {{ report.datetime|longdate }}</li>
             <li><i class="icon-cog"></i> Status: {{ workflow.state.title }}</li>
           {%- else -%}
             <li><i class="icon-user"></i> {{ g.user.fullname }}</li>

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from coaster import make_name
-
+from decimal import Decimal
+from datetime import datetime
 from kharcha.models import db, BaseMixin, BaseNameMixin
 from kharcha.models.user import User
 
@@ -46,26 +46,28 @@ class ExpenseReport(db.Model, BaseMixin):
     #: User who submitted the report
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User, primaryjoin=user_id == User.id,
-        backref = db.backref('expensereports', cascade='all, delete-orphan'))
+        backref=db.backref('expensereports', cascade='all, delete-orphan'))
+    #: Date of report submission
+    datetime = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     title = db.Column(db.Unicode(250), nullable=False)
     #: Budget to which this report is assigned
     budget_id = db.Column(db.Integer, db.ForeignKey('budget.id'), nullable=True)
     budget = db.relationship(Budget, primaryjoin=budget_id == Budget.id,
-        backref = db.backref('expensereports', cascade='all')) # No delete-orphan here
+        backref=db.backref('expensereports', cascade='all'))  # No delete-orphan here
     #: Currency for expenses in this report
     currency = db.Column(db.Unicode(3), nullable=False, default=u'INR')
     #: Optional description of expenses
     description = db.Column(db.Text, nullable=False, default=u'')
     #: Total value in the report's currency
-    total_value = db.Column(db.Numeric(scale=2), nullable=False, default=0.0)
+    total_value = db.Column(db.Numeric(scale=2), nullable=False, default=Decimal('0.0'))
     #: Total value in the organization's preferred currency
-    total_converted = db.Column(db.Numeric(scale=2), nullable=False, default=0.0)
+    total_converted = db.Column(db.Numeric(scale=2), nullable=False, default=Decimal('0.0'))
     #: Reviewer
     reviewer_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     reviewer = db.relationship(User, primaryjoin=reviewer_id == User.id,
-        backref = db.backref('reviewed_reports', cascade='all')) # No delete-orphan
+        backref=db.backref('reviewed_reports', cascade='all'))  # No delete-orphan
     #: Reviewer notes
-    notes = db.Column(db.Text, nullable=False, default=u'') # HTML notes
+    notes = db.Column(db.Text, nullable=False, default=u'')  # HTML notes
     #: Status
     status = db.Column(db.Integer, nullable=False, default=REPORT_STATUS.DRAFT)
 
@@ -96,4 +98,4 @@ class Expense(db.Model, BaseMixin):
     amount = db.Column(db.Numeric(scale=2), default=0, nullable=False)
     #: Report in which this expense is recorded
     report = db.relationship(ExpenseReport, primaryjoin=report_id == ExpenseReport.id,
-        backref = db.backref('expenses', cascade='all, delete-orphan', order_by=seq))
+        backref=db.backref('expenses', cascade='all, delete-orphan', order_by=seq))

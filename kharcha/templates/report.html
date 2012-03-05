@@ -14,7 +14,7 @@
     <div class="span3">
       <ul class="well nav nav-list">
         <li><i class="icon-user"></i> {{ report.user.fullname }}</li>
-        <li><i class="icon-calendar"></i> {{ report.created_at|longdate }}</li>
+        <li><i class="icon-calendar"></i> {{ report.datetime|longdate }}</li>
         {% if report.budget -%}
           <li><i class="icon-book"></i> {{ report.budget.title }}</li>
         {%- endif %}
@@ -29,17 +29,17 @@
       </ul>
     </div>
   </div>
-  {{ expensetable(report, workflow) }}
   {% if workflow.editable() %}
     {{ newexpense(expenseform, categories) }}
   {% endif %}
+  {{ expensetable(report, workflow) }}
   {% if transitions %}
     <div class="form-actions">
       {%- for transition in transitions.values() %}
-        <form class="form-inline form-button" method="POST" action="{{ url_for('report', id=report.id) }}/{{ transition.name }}">
+        <form class="form-inline form-button" method="POST" action="{{ url_for(transition.view, id=report.id) }}">
           <button type="submit" data-description="{{ transition.description }}" class="btn{% if transition.category %} btn-{{ transition.category }}{% endif %} confirm-submit">{{ transition.title }}</button>
         </form>
-      {% endfor -%}
+      {%- endfor %}
     </div>
   {% endif %}
   <div class="modal fade" id="confirm-transition">
@@ -75,9 +75,6 @@
         $("#confirm-transition").find('h2').html(button.html());
         $("#confirm-transition").find('.modal-body').html(button.attr('data-description'));
         $("#confirm-transition").modal();
-        //if (confirm('Submit?')) {
-        //  $(this).closest('form').submit();
-        //}
         return false;
       });
     });

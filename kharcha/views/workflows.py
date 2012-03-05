@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
 from flask import g
 from docflow import DocumentWorkflow, WorkflowState, WorkflowStateGroup
 from kharcha.models import REPORT_STATUS, ExpenseReport
@@ -39,25 +40,30 @@ class ExpenseReportWorkflow(DocumentWorkflow):
         return base_permissions
 
     @draft.transition(pending, 'owner', title=u"Submit", category="primary",
-        description=u"Submit this expense report to a reviewer.")
+        description=u"Submit this expense report to a reviewer.",
+        view='report_submit')
     def submit(self):
         """
-        Publish the review.
+        Submit the report.
         """
+        # Update timestamp
+        self.document.datetime = datetime.utcnow()
         # TODO: Notify reviewers
-        pass
 
     @review.transition(pending, 'owner', title=u"Submit", category="primary",
-        description=u"Resubmit this expense report to a reviewer.")
+        description=u"Resubmit this expense report to a reviewer.",
+        view='report_resubmit')
     def resubmit(self):
         """
-        Publish the review.
+        Resubmit the report.
         """
+        # Update timestamp
+        self.document.datetime = datetime.utcnow()
         # TODO: Notify reviewers
-        pass
 
     @pending.transition(accepted, 'reviewer', title=u"Accept", category="primary",
-        description=u"Accept this expense report and queue it for reimbursements.")
+        description=u"Accept this expense report and queue it for reimbursements.",
+        view='report_accept')
     def accept(self):
         """
         Accept the expense report and mark for payout to owner.
@@ -66,7 +72,8 @@ class ExpenseReportWorkflow(DocumentWorkflow):
         pass
 
     @pending.transition(review, 'reviewer', title=u"Return for review", category="warning",
-        description=u"Return this expense report to the submitter for review.")
+        description=u"Return this expense report to the submitter for review.",
+        view='report_return')
     def return_for_review(self):
         """
         Return report to owner for review.
@@ -75,7 +82,8 @@ class ExpenseReportWorkflow(DocumentWorkflow):
         pass
 
     @pending.transition(rejected, 'reviewer', title=u"Reject", category="danger",
-        description=u"Reject this expense report.")
+        description=u"Reject this expense report.",
+        view='report_reject')
     def reject(self):
         """
         Reject expense report.
@@ -84,7 +92,8 @@ class ExpenseReportWorkflow(DocumentWorkflow):
         pass
 
     @review.transition(withdrawn, 'owner', title=u"Withdraw", category="danger",
-        description=u"Withdraw this expense report.")
+        description=u"Withdraw this expense report.",
+        view='report_withdraw')
     def withdraw(self):
         """
         Withdraw the expense report.
@@ -92,10 +101,11 @@ class ExpenseReportWorkflow(DocumentWorkflow):
         pass
 
     @accepted.transition(closed, 'reviewer', title=u"Close", category="success",
-        description=u"Mark this expense report as reimbursed.")
+        description=u"Mark this expense report as reimbursed.",
+        view='report_close')
     def close(self):
         """
-        Close expense report (indicates payment).
+        Close expense report (indicates reimbursement).
         """
         # TODO: Notify owner of closure.
         pass

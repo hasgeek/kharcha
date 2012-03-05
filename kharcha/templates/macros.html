@@ -57,15 +57,15 @@
 {% endmacro %}
 
 {% macro newexpense(form, categories) %}
-  <form class="form-inline" id="newexpense" method="POST">
+  <form class="form-inline no-print" id="newexpense" method="POST">
     {% if form.csrf.errors %}
       <div class="alert alert-error">An error occured. Please submit again</div>
     {% endif %}
     {{ form.hidden_tag() }}
     <input type="hidden" name="id" id="expense-id" value="{{ form.id.data or '' }}">
     <span class="control-group{% if form.date.errors %} error{% endif %}"><input type="text" data-datepicker="datepicker" id="expense-date" name="date" class="input-small" placeholder="Date" value="{{ form.date.data or '' }}"></span>
-    <span class="control-group{% if form.category.errors %} error{% endif %}"><select class="input-medium" name="category" id="expense-category">
-      <option value="__None"></option>
+    <span class="control-group{% if form.category.errors %} error{% endif %}"><select data-placeholder="Category" class="input-medium" name="category" id="expense-category">
+      <option value=""></option>
       {% for c in categories %}
         <option value="{{ c.id }}" {%- if c.id == form.category.data.id %} selected {%- endif %}>{{ c.title }}</option>
       {% endfor %}
@@ -85,6 +85,7 @@
         target: '#newexpense',
         replaceTarget: true,
       });
+      activate_chosen("#expense-category");
       $("#expense-cancel").click(function(e) {
         $("#newexpense").clearForm();
         $("#expense-id").val("");
@@ -92,9 +93,10 @@
         $("tr.alert-info").removeClass('alert-info');
         $("#newexpense .alert").remove();
         $("#newexpense .control-group.error").removeClass("error");
+        $("#expense-category").trigger("liszt:updated")
         return false;
       });
-      $("#newexpense").keydown(function(e) {
+      $("#expense-description, #expense-amount").keydown(function(e) {
         if (e.keyCode == 27) {
           $("#expense-cancel").trigger('click');
         };
@@ -114,6 +116,7 @@
         $("#expense-id").val($(this).attr('data-id'));;
         $("#expense-date").val(row.find('[data-field="date"]').attr('data-value'));
         $("#expense-category").val(row.find('[data-field="category"]').attr('data-value'));
+        $("#expense-category").trigger("liszt:updated")
         $("#expense-description").val(row.find('[data-field="description"]').attr('data-value'));
         $("#expense-amount").val(row.find('[data-field="amount"]').attr('data-value'));
         $("#expense-add").val("Save");
