@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
 # Expense forms
+from decimal import Decimal
+from flask import g
 import flask.ext.wtf as wtf
 from baseframe.forms import Form, RichTextField
 from coaster import simplify_text
-from kharcha.models import Category, Budget
+from kharcha.models import Category, Budget, Expense
 
 __all__ = ['BudgetForm', 'CategoryForm', 'ExpenseReportForm', 'ExpenseForm']
 
@@ -87,4 +89,13 @@ class ExpenseForm(Form):
 
     def validate_id(self, field):
         # Check if user is authorized to edit this expense.
-        pass
+        if field.data:
+            expense = Expense.query.get(field.data)
+            if not expense:
+                raise wtf.ValidationError("Unknown expense")
+            if expense.report.user != g.user:
+                raise wtf.ValidationError("You are not authorized to edit this expense")
+
+    def validate_amount(self, field):
+        if field.data < Decimal('0.01'):
+            raise wtf.ValidationError("Amount should be non-zero")
