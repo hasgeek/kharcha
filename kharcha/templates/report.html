@@ -4,14 +4,14 @@
 {% block headline %}{% endblock %}
 {% block content %}
   <div class="row section">
-    <div class="span6">
+    <div class="span6 print-span8">
       <div class="page-header">
         <h3>Report #{{ report.id }}</h3>
         <h1>{{ self.title() }}</h1>
       </div>
       {{ report.description|safe }}
     </div>
-    <div class="span3">
+    <div class="span3 print-span4">
       <ul class="well nav nav-list">
         <li><i class="icon-user"></i> {{ report.user.fullname }}</li>
         <li><i class="icon-calendar"></i> {{ report.datetime|longdate }}</li>
@@ -19,22 +19,22 @@
           <li><i class="icon-book"></i> {{ report.budget.title }}</li>
         {%- endif %}
         <li><i class="icon-cog"></i> Status: {{ workflow.state.title }}</li>
-        {% if workflow.editable() -%}
-          <li><a href="{{ url_for('report_edit', id=report.id) }}"><i class="icon-pencil"></i> Edit details...</a></li>
+        {% if workflow.can_edit() -%}
+          <li class="no-print"><a href="{{ url_for('report_edit', id=report.id) }}"><i class="icon-pencil"></i> Edit details...</a></li>
         {%- endif %}
         {% if workflow.draft() -%}
-          <li><a href="{{ url_for('report_delete', id=report.id) }}"><i class="icon-trash"></i> Delete...</a></li>
+          <li class="no-print"><a href="{{ url_for('report_delete', id=report.id) }}"><i class="icon-trash"></i> Delete...</a></li>
         {% endif %}
-        <li><a href="{{ url_for('report_csv', id=report.id) }}"><i class="icon-download"></i> Download as CSV</a></li>
+        <li class="no-print"><a href="{{ url_for('report_csv', id=report.id) }}"><i class="icon-download"></i> Download as CSV</a></li>
       </ul>
     </div>
   </div>
-  {% if workflow.editable() %}
+  {% if workflow.can_edit() %}
     {{ newexpense(expenseform, categories) }}
   {% endif %}
   {{ expensetable(report, workflow) }}
   {% if transitions %}
-    <div class="form-actions">
+    <div class="form-actions no-print">
       {%- for transition in transitions.values() %}
         <form class="form-inline form-button" method="POST" action="{{ url_for(transition.view, id=report.id) }}">
           <button type="submit" data-description="{{ transition.description }}" class="btn{% if transition.category %} btn-{{ transition.category }}{% endif %} confirm-submit">{{ transition.title }}</button>
@@ -42,6 +42,14 @@
       {%- endfor %}
     </div>
   {% endif %}
+  <div class="row print-only">
+    <div id="print-signature" class="span3 offset6 print-span4 print-offset8">
+      <p>
+        <strong>{{ report.user.fullname }}</strong><br>
+        {{ report.datetime|longdate }}
+      </p>
+    </div>
+  </div>
   <div class="modal fade" id="confirm-transition">
     <div class="modal-header">
       <a class="close" data-dismiss="modal">&times;</a>

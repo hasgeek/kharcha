@@ -37,8 +37,8 @@
           <td data-field="amount" data-value="{{ expense.amount }}" class="num">
             {{ expense.amount|format_currency }}
             {%- if editlinks and workflow.can_edit() %}
-              <a href="#" class="link-util expense-edit" data-id="{{ expense.id }}" title="Edit"><i class="icon-pencil"></i></a>
-              <a href="{{ url_for('expense_delete', rid=report.id, eid=expense.id) }}" class="link-util expense-delete" data-id="{{ expense.id }}" title="Delete"><i class="icon-remove"></i></a>
+              <a href="#" class="link-util expense-edit no-print" data-id="{{ expense.id }}" title="Edit"><i class="icon-pencil"></i></a>
+              <a href="{{ url_for('expense_delete', rid=report.id, eid=expense.id) }}" class="link-util expense-delete no-print" data-id="{{ expense.id }}" title="Delete"><i class="icon-remove"></i></a>
             {%- endif %}
           </td>
         </tr>
