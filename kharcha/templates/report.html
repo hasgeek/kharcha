@@ -5,6 +5,12 @@
 {% block content %}
   <div class="row section">
     <div class="span6 print-span8">
+      {%- if workflow.pending() and report.user == g.user %}
+        <div class="alert alert-info no-print">
+          <a class="close" data-dismiss="alert">&times;</a>
+          Print this page, sign it, attach all receipts, and submit to a reviewer: <a href="javascript:this.print();" class="btn">Print</a>
+        </div>
+      {%- endif %}
       <div class="page-header">
         <h3>Report #{{ report.id }}</h3>
         <h1>{{ self.title() }}</h1>
@@ -18,7 +24,7 @@
         {% if report.budget -%}
           <li><i class="icon-book"></i> {{ report.budget.title }}</li>
         {%- endif %}
-        <li><i class="icon-cog"></i> Status: {{ workflow.state.title }}</li>
+        <li class="no-print"><i class="icon-cog"></i> Status: {{ workflow.state.title }}</li>
         {% if workflow.can_edit() -%}
           <li class="no-print"><a href="{{ url_for('report_edit', id=report.id) }}"><i class="icon-pencil"></i> Edit details...</a></li>
         {%- endif %}
