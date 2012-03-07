@@ -52,8 +52,7 @@ class ExpenseReport(db.Model, BaseMixin):
     title = db.Column(db.Unicode(250), nullable=False)
     #: Budget to which this report is assigned
     budget_id = db.Column(db.Integer, db.ForeignKey('budget.id'), nullable=True)
-    budget = db.relationship(Budget, primaryjoin=budget_id == Budget.id,
-        backref=db.backref('expensereports', cascade='all'))  # No delete-orphan here
+    budget = db.relationship(Budget, primaryjoin=budget_id == Budget.id)
     #: Currency for expenses in this report
     currency = db.Column(db.Unicode(3), nullable=False, default=u'INR')
     #: Optional description of expenses
