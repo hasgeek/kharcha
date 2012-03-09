@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from flask import g
-from docflow import DocumentWorkflow, WorkflowState, WorkflowStateGroup
+from coaster.docflow import DocumentWorkflow, WorkflowState, WorkflowStateGroup
 from kharcha.models import REPORT_STATUS, ExpenseReport
 from kharcha.views.login import lastuser
 
@@ -40,7 +40,8 @@ class ExpenseReportWorkflow(DocumentWorkflow):
         return base_permissions
 
     @draft.transition(pending, 'owner', title=u"Submit", category="primary",
-        description=u"Submit this expense report to a reviewer.",
+        description=u"Submit this expense report to a reviewer. You cannot "
+        "edit this report after it has been submitted.",
         view='report_submit')
     def submit(self):
         """
@@ -51,7 +52,8 @@ class ExpenseReportWorkflow(DocumentWorkflow):
         # TODO: Notify reviewers
 
     @review.transition(pending, 'owner', title=u"Submit", category="primary",
-        description=u"Resubmit this expense report to a reviewer.",
+        description=u"Resubmit this expense report to a reviewer. You cannot "
+        "edit this report after it has been submitted.",
         view='report_resubmit')
     def resubmit(self):
         """

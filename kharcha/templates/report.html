@@ -8,7 +8,7 @@
       {%- if workflow.pending() and report.user == g.user %}
         <div class="alert alert-info no-print">
           <a class="close" data-dismiss="alert">&times;</a>
-          Print this page, sign it, attach all receipts, and submit to a reviewer: <a href="javascript:this.print();" class="btn">Print</a>
+          Print this page, sign it, attach all receipts, and submit to a reviewer. You cannot edit this report because it is awaiting review by a reviewer. <a href="javascript:this.print();" class="btn">Print</a>
         </div>
       {%- endif %}
       <div class="page-header">

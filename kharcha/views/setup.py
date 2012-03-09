@@ -35,12 +35,6 @@ def budget_new():
         cancel_url=url_for('budget_list'), ajax=True)
 
 
-@app.route('/budgets/<name>')
-def budget(name):
-    budget = Budget.query.filter_by(name=name).first_or_404()
-    return render_template('budget.html', budget=budget)
-
-
 @app.route('/budgets/<name>/edit', methods=['GET', 'POST'])
 @lastuser.requires_permission('siteadmin')
 def budget_edit(name):

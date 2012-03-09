@@ -16,7 +16,7 @@ from kharcha import app
 from kharcha.forms import ExpenseReportForm, ExpenseForm
 from kharcha.views.login import lastuser
 from kharcha.views.workflows import ExpenseReportWorkflow
-from kharcha.models import db, ExpenseReport, Expense
+from kharcha.models import db, ExpenseReport, Expense, Budget
 
 
 @app.template_filter('format_currency')
@@ -24,20 +24,38 @@ def format_currency(value):
     return coaster_format_currency(value, decimals=2)
 
 
+def available_reports(user=None):
+    if user is None:
+        user = g.user
+    query = ExpenseReport.query.order_by('datetime')
+    if 'reviewer' in lastuser.permissions():
+        # Get all reports owned by this user and in states where the user can review them
+        query = ExpenseReport.query.filter(db.or_(
+            ExpenseReport.user == user,
+            ExpenseReport.status.in_(ExpenseReportWorkflow.reviewable.values)))
+    else:
+        query = ExpenseReport.query.filter_by(user=user)
+    return query
+
+
+@app.route('/budgets/<name>')
+def budget(name):
+    budget = Budget.query.filter_by(name=name).first_or_404()
+    unsorted_reports = available_reports().filter_by(budget=budget).all()
+    if unsorted_reports:
+        noreports = False
+    else:
+        noreports = True
+    reports = ExpenseReportWorkflow.sort_documents(unsorted_reports)
+    return render_template('budget.html', budget=budget, reports=reports, noreports=noreports)
+
+
 @app.route('/reports/')
 @lastuser.requires_login
 def reports():
     # Sort reports by status
-    query = ExpenseReport.query.order_by('updated_at')
-    if 'reviewer' in lastuser.permissions():
-        # Get all reports owned by this user and in states where the user can review them
-        query = ExpenseReport.query.filter(db.or_(
-            ExpenseReport.user == g.user,
-            ExpenseReport.status.in_(ExpenseReportWorkflow.reviewable.value)))
-    else:
-        query = ExpenseReport.query.filter_by(user=g.user)
-    reports = ExpenseReportWorkflow.sort_documents(query.order_by('updated_at').all())
-    return render_template('reports.html', reports=reports)
+    reports = ExpenseReportWorkflow.sort_documents(available_reports().all())
+    return render_template('reports.html', reports=reports, reportspage=True)
 
 
 def report_edit_internal(form, report=None, workflow=None):
@@ -211,11 +229,11 @@ def expense_delete(report, expense):
 def report_submit(wf):
     if wf.document.expenses == []:
         flash(u"This expense report does not list any expenses.", 'error')
-        return redirect(url_for('report', id=wf.document.id))
+        return redirect(url_for('report', id=wf.document.id), code=303)
     wf.submit()
     db.session.commit()
     flash(u"Expense report '%s' has been submitted." % wf.document.title, 'success')
-    return redirect(url_for('reports'), code=303)
+    return redirect(url_for('report', id=wf.document.id), code=303)
 
 
 @app.route('/reports/<int:id>/resubmit', methods=['POST'])
@@ -224,11 +242,11 @@ def report_submit(wf):
 def report_resubmit(wf):
     if wf.document.expenses == []:
         flash(u"This expense report does not list any expenses.", 'error')
-        return redirect(url_for('report', id=wf.document.id))
+        return redirect(url_for('report', id=wf.document.id), code=303)
     wf.resubmit()
     db.session.commit()
     flash(u"Expense report '%s' has been submitted." % wf.document.title, 'success')
-    return redirect(url_for('reports'), code=303)
+    return redirect(url_for('report', id=wf.document.id), code=303)
 
 
 @app.route('/reports/<int:id>/accept', methods=['POST'])

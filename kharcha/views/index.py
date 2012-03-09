@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import os
 from pytz import utc, timezone
 from flask import render_template
 from kharcha import app
@@ -9,6 +8,7 @@ from kharcha.views.workflows import ExpenseReportWorkflow
 from kharcha.views.login import lastuser
 
 tz = timezone(app.config['TIMEZONE'])
+
 
 @app.template_filter('shortdate')
 def shortdate(date):
@@ -28,6 +28,7 @@ def sidebarvars():
         'report_states': ExpenseReportWorkflow.states(),
         'permissions': lastuser.permissions(),
     }
+
 
 @app.route('/')
 def index():

@@ -1,10 +1,20 @@
 # -*- coding: utf-8 -*-
 
-from kharcha.models import db, BaseMixin, BaseNameMixin
+from kharcha.models import db, BaseMixin
 from kharcha.models.user import User
 
 __all__ = ['Payment']
 
+
 class Payment(db.Model, BaseMixin):
     __tablename__ = 'payment'
-    pass
+    #: User who made the payment
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user = db.relationship(User, primaryjoin=user_id == User.id,
+        backref=db.backref('payouts', cascade='all, delete-orphan'))
+    #: User-reported date when payment was made
+    date = db.Column(db.Date, nullable=False)
+    #: Currency for payment
+    currency = db.Column(db.Unicode(3), nullable=False, default=u'INR')
+    #: Amount of payment
+    amount = db.Column(db.Numeric(scale=2), default=0, nullable=False)

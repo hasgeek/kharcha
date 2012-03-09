@@ -8,7 +8,7 @@
   	<div class="span3 no-print">
       <ul class="well nav nav-list section">
         <li class="nav-header">Expense Reports</li>
-        <li {%- if reports %} class="active"{% endif %}><a href="{{ url_for('reports') }}"><i class="icon-inbox {%- if reports %} icon-white {%- endif %}"></i> Your reports</a></li>
+        <li {%- if reportspage %} class="active"{% endif %}><a href="{{ url_for('reports') }}"><i class="icon-inbox {%- if reports %} icon-white {%- endif %}"></i> Your reports</a></li>
         {%- if report %}
           <li class="active"><a href="{{ url_for('report', id=report.id) }}"><i class="icon-file icon-white"></i> Report: {{ report.title }}</a></li>
         {%- endif %}

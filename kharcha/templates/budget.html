@@ -1,17 +1,57 @@
 {% extends "layout.html" %}
 {% block title %}{{ budget.title }}{% endblock %}
-{% block headline %}
-  <div class="page-header">
-    <h1>
-      {{ self.title() }}
-      <small>
-        <a href="{{url_for('budget_edit', name=budget.name) }}"><i class="icon-edit"></i></a>
-        <a href="{{url_for('budget_delete', name=budget.name) }}"><i class="icon-remove"></i></a>
-      </small>
-    </h1>
-  </div>
-{% endblock %}
+{% block headline %}{% endblock %}
 
 {% block content %}
-  {{ budget.description|safe }}
+  <div class="row section">
+    <div class="span6 print-span8">
+      <div class="page-header">
+        <h1>
+          {{ self.title() }}
+        </h1>
+      </div>
+      {{ budget.description|safe }}
+    </div>
+    {% if 'siteadmin' in permissions -%}
+      <div class="span3 print-span4">
+        <ul class="well nav nav-list">
+          <li class="no-print"><a href="{{ url_for('budget_edit', name=budget.name) }}"><i class="icon-pencil"></i> Edit details...</a></li>
+          <li class="no-print"><a href="{{ url_for('budget_delete', name=budget.name) }}"><i class="icon-trash"></i> Delete...</a></li>
+        </ul>
+      </div>
+    {% endif %}
+  </div>
+  {%- if not noreports %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Date</th>
+          <th>Title</th>
+          <th>Owner</th>
+          <th>Currency</th>
+          <th class="num">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        {%- for s in report_states %}
+          {%- if reports[s.name] %}
+            <tr><td colspan="6"><h2>{{ s.title }}</h2></td></tr>
+            {%- for r in reports[s.name] %}
+              <tr class="link">
+                <td><a href="{{ url_for('report', id=r.id) }}">#{{ r.id }}</a></td>
+                <td><a href="{{ url_for('report', id=r.id) }}">{{ r.datetime|longdate }}</a></td>
+                <td><a href="{{ url_for('report', id=r.id) }}">{{ r.title }}</a></td>
+                <td><a href="{{ url_for('report', id=r.id) }}">{{ r.user.fullname }}</a></td>
+                <td><a href="{{ url_for('report', id=r.id) }}">{{ r.currency }}</a></td>
+                <td class="num"><a href="{{ url_for('report', id=r.id) }}">{{ r.total_value|format_currency }}</a></td>
+              </tr>
+            {%- endfor %}
+          {%- endif %}
+        {%- endfor %}
+      </tbody>
+    </table>
+  {%- else %}
+    <p><em>There are no expense reports filed against this budget.</em></p>
+  {%- endif %}
 {% endblock %}
