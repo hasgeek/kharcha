@@ -25,7 +25,7 @@ class ExpenseReportWorkflow(DocumentWorkflow):
     #: States in which an owner can edit
     editable = WorkflowStateGroup([draft, review], title=u"Editable")
     #: States in which a reviewer can view
-    reviewable = WorkflowStateGroup([pending, accepted, rejected, closed],
+    reviewable = WorkflowStateGroup([pending, review, accepted, rejected, closed],
                                     title=u"Reviewable")
 
     def permissions(self):
