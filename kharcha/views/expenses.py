@@ -217,7 +217,7 @@ def expense_delete(report, expense):
             db.session.commit()
             report.update_total()
             db.session.commit()
-            return redirect(url_for('report', id=report.id), code=303)
+        return redirect(url_for('report', id=report.id), code=303)
     return render_template('baseframe/delete.html', form=form, title=u"Confirm delete",
         message=u"Delete expense item '%s' for %s %s?" % (
             expense.description, report.currency, format_currency(expense.amount)))
