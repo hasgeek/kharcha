@@ -58,9 +58,9 @@
 
 {% macro newexpense(form, categories) %}
   <form class="form-inline no-print" id="newexpense" method="POST">
-    {% if form.csrf.errors %}
+    {#{% if form.csrf.errors %}
       <div class="alert alert-error">An error occured. Please submit again</div>
-    {% endif %}
+    {% endif %}#}
     {{ form.hidden_tag() }}
     <input type="hidden" name="id" id="expense-id" value="{{ form.id.data or '' }}">
     <span class="control-group{% if form.date.errors %} error{% endif %}"><input type="text" data-datepicker="datepicker" id="expense-date" name="date" class="input-small" placeholder="Date" value="{{ form.date.data or '' }}"></span>

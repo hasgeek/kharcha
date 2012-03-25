@@ -97,11 +97,11 @@ def report(report):
             expense = Expense.query.get(expenseform.id.data)
         else:
             expense = Expense()
-            # Find the highest sequence number for exxpenses in this report.
+            # Find the highest sequence number for expenses in this report.
             # If None, assume 0, then add 1 to get the next sequence number
-            expense.seq = db.session.query(
+            expense.seq = (db.session.query(
                 db.func.max(Expense.seq).label('seq')).filter_by(
-                    report_id=report.id).first().seq or 0 + 1
+                    report_id=report.id).first().seq or 0) + 1
             db.session.add(expense)
         expenseform.populate_obj(expense)
         report.expenses.append(expense)
@@ -216,6 +216,7 @@ def expense_delete(report, expense):
             db.session.delete(expense)
             db.session.commit()
             report.update_total()
+            report.update_sequence_numbers()
             db.session.commit()
         return redirect(url_for('report', id=report.id), code=303)
     return render_template('baseframe/delete.html', form=form, title=u"Confirm delete",
