@@ -2,8 +2,10 @@
 
 from decimal import Decimal
 from datetime import datetime
-from kharcha.models import db, BaseMixin, BaseNameMixin
+from flask import url_for
+from kharcha.models import db, BaseMixin, BaseScopedNameMixin, BaseScopedIdNameMixin
 from kharcha.models.user import User
+from kharcha.models.workspace import Workspace
 
 __all__ = ['REPORT_STATUS', 'Budget', 'Category', 'ExpenseReport', 'Expense']
 
@@ -22,34 +24,44 @@ class REPORT_STATUS:
 
 # --- Models ------------------------------------------------------------------
 
-class Budget(db.Model, BaseNameMixin):
+class Budget(BaseScopedNameMixin, db.Model):
     """
     Budget to which expense reports can be assigned.
     """
     __tablename__ = 'budget'
+    workspace_id = db.Column(db.Integer, db.ForeignKey('workspace.id'), nullable=False)
+    workspace = db.relation(Workspace, backref=db.backref('budgets', cascade='all, delete-orphan'))
+    parent = db.synonym('workspace')
     #: Description of the budget. HTML field.
     description = db.Column(db.Text, nullable=False, default=u'')
+    __table_args__ = (db.UniqueConstraint('name', 'workspace_id'),)
 
 
-class Category(db.Model, BaseNameMixin):
+class Category(BaseScopedNameMixin, db.Model):
     """
     Expense categories.
     """
     __tablename__ = 'category'
+    workspace_id = db.Column(db.Integer, db.ForeignKey('workspace.id'), nullable=False)
+    workspace = db.relation(Workspace, backref=db.backref('categories', cascade='all, delete-orphan'))
+    parent = db.synonym('workspace')
+    __table_args__ = (db.UniqueConstraint('name', 'workspace_id'),)
 
 
-class ExpenseReport(db.Model, BaseMixin):
+class ExpenseReport(BaseScopedIdNameMixin, db.Model):
     """
     Collection of expenses.
     """
     __tablename__ = 'expense_report'
+    workspace_id = db.Column(db.Integer, db.ForeignKey('workspace.id'), nullable=False)
+    workspace = db.relation(Workspace, backref=db.backref('reports', cascade='all, delete-orphan'))
+    parent = db.synonym('workspace')
     #: User who submitted the report
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User, primaryjoin=user_id == User.id,
         backref=db.backref('expensereports', cascade='all, delete-orphan'))
     #: Date of report submission
     datetime = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-    title = db.Column(db.Unicode(250), nullable=False)
     #: Budget to which this report is assigned
     budget_id = db.Column(db.Integer, db.ForeignKey('budget.id'), nullable=True)
     budget = db.relationship(Budget, primaryjoin=budget_id == Budget.id)
@@ -70,6 +82,8 @@ class ExpenseReport(db.Model, BaseMixin):
     #: Status
     status = db.Column(db.Integer, nullable=False, default=REPORT_STATUS.DRAFT)
 
+    __table_args__ = (db.UniqueConstraint('url_id', 'workspace_id'),)
+
     def update_total(self):
         self.total_value = sum([e.amount for e in self.expenses])
         #self.total_value = db.session.query(
@@ -84,7 +98,7 @@ class ExpenseReport(db.Model, BaseMixin):
                 expense.seq = i + 1
 
 
-class Expense(db.Model, BaseMixin):
+class Expense(BaseMixin, db.Model):
     """
     Expense line item.
     """

@@ -8,13 +8,14 @@ from baseframe.forms import Form, RichTextField
 from coaster import simplify_text
 from kharcha.models import Category, Budget, Expense
 
-__all__ = ['BudgetForm', 'CategoryForm', 'ExpenseReportForm', 'ExpenseForm']
+__all__ = ['BudgetForm', 'CategoryForm', 'ExpenseReportForm', 'ExpenseForm', 'WorkflowForm', 'ReviewForm']
 
 CURRENCIES = [
     ('INR', 'INR - India Rupee'),
     ('USD', 'USD - US Dollar'),
     ('EUR', 'EUR - Euro'),
-    ('GBP', 'GBP - Great Britain Pound')
+    ('GBP', 'GBP - Great Britain Pound'),
+    ('SGD', 'SGD - Singapore Dollar'),
     ]
 
 
@@ -31,7 +32,8 @@ class BudgetForm(Form):
         """
         If the title is already in use, refuse to add this one.
         """
-        existing = set([simplify_text(b.title) for b in Budget.query.all() if b != self.edit_obj])
+        existing = set([simplify_text(b.title) for b in
+            Budget.query.filter_by(workspace=g.workspace).all() if b != self.edit_obj])
         if simplify_text(field.data) in existing:
             raise wtf.ValidationError("You have an existing budget with the same name")
 
@@ -47,17 +49,18 @@ class CategoryForm(Form):
         """
         If the title is already in use, refuse to add this one.
         """
-        existing = set([simplify_text(c.title) for c in Category.query.all() if c != self.edit_obj])
+        existing = set([simplify_text(c.title) for c in
+            Category.query.filter_by(workspace=g.workspace).all() if c != self.edit_obj])
         if simplify_text(field.data) in existing:
             raise wtf.ValidationError("You have an existing category with the same name")
 
 
 def sorted_budgets():
-    return Budget.query.order_by('title')
+    return Budget.query.filter_by(workspace=g.workspace).order_by('title')
 
 
 def sorted_categories():
-    return Category.query.order_by('title')
+    return Category.query.filter_by(workspace=g.workspace).order_by('title')
 
 
 class ExpenseReportForm(Form):
@@ -66,14 +69,14 @@ class ExpenseReportForm(Form):
     """
     title = wtf.TextField(u"Title", validators=[wtf.Required()],
         description=u"What are these expenses for?")
-    budget = wtf.QuerySelectField(u"Budget", validators=[wtf.Optional()],
-        query_factory=sorted_budgets, get_label='title', allow_blank=True,
-        description=u"The budget source for these expenses")
+    description = RichTextField(u"Description", validators=[wtf.Optional()],
+        description=u"Notes on the expenses")
     currency = wtf.SelectField(u"Currency", validators=[wtf.Required()],
         description=u"Currency for expenses in this report",
         choices=CURRENCIES)
-    description = RichTextField(u"Description", validators=[wtf.Optional()],
-        description=u"Notes on the expenses")
+    budget = wtf.QuerySelectField(u"Budget", validators=[wtf.Optional()],
+        query_factory=sorted_budgets, get_label='title', allow_blank=True,
+        description=u"The budget source for these expenses")
 
 
 class ExpenseForm(Form):
@@ -99,3 +102,17 @@ class ExpenseForm(Form):
     def validate_amount(self, field):
         if field.data < Decimal('0.01'):
             raise wtf.ValidationError("Amount should be non-zero")
+
+
+class WorkflowForm(Form):
+    """
+    Blank form for CSRF in workflow submissions.
+    """
+    pass
+
+
+class ReviewForm(Form):
+    """
+    Reviewer notes on expense reports.
+    """
+    notes = RichTextField(u"Notes", validators=[wtf.Required()])

@@ -1,20 +1,20 @@
-{% macro category_list(categories, selected=None, permissions=[]) %}
+{% macro category_list(workspace, categories, selected=None, permissions=[]) %}
   <li class="nav-header">Expense Categories</li>
   {%- for c in categories %}
-    <li {%- if c==selected %} class="active"{% endif %}><a href="{{ url_for('category',name=c.name) }}"><i class="icon-folder-open {%- if c==selected %} icon-white {%- endif %}"></i> {{ c.title }}</a></li>
+    <li {%- if c==selected %} class="active"{% endif %}><a href="{{ url_for('category', workspace=c.workspace.name, category=c.name) }}"><i class="icon-folder-open {%- if c==selected %} icon-white {%- endif %}"></i> {{ c.title }}</a></li>
   {%- endfor %}
   {% if 'siteadmin' in permissions -%}
-    <li><a href="{{ url_for('category_new') }}"><i class="icon-plus"></i> Add a category...</a></li>
+    <li><a href="{{ url_for('category_new', workspace=workspace.name) }}"><i class="icon-plus"></i> Add a category...</a></li>
   {%- endif %}
 {% endmacro %}
 
-{% macro budget_list(budgets, selected=None, permissions=[]) %}
+{% macro budget_list(workspace, budgets, selected=None, permissions=[]) %}
   <li class="nav-header">Budgets</li>
   {%- for b in budgets %}
-    <li {%- if b==selected %} class="active"{% endif %}><a href="{{ url_for('budget',name=b.name) }}"><i class="icon-book {%- if b==selected %} icon-white {%- endif %}"></i> {{ b.title }}</a></li>
+    <li {%- if b==selected %} class="active"{% endif %}><a href="{{ url_for('budget', workspace=b.workspace.name, budget=b.name) }}"><i class="icon-book {%- if b==selected %} icon-white {%- endif %}"></i> {{ b.title }}</a></li>
   {%- endfor %}
   {% if 'siteadmin' in permissions -%}
-    <li><a href="{{ url_for('budget_new') }}"><i class="icon-plus"></i> Add a budget...</a></li>
+    <li><a href="{{ url_for('budget_new', workspace=workspace.name) }}"><i class="icon-plus"></i> Add a budget...</a></li>
   {%- endif %}
 {% endmacro %}
 
@@ -38,7 +38,7 @@
             {{ expense.amount|format_currency }}
             {%- if editlinks and workflow.can_edit() %}
               <a href="#" class="link-util expense-edit no-print" data-id="{{ expense.id }}" title="Edit"><i class="icon-pencil"></i></a>
-              <a href="{{ url_for('expense_delete', rid=report.id, eid=expense.id) }}" class="link-util expense-delete no-print" data-id="{{ expense.id }}" title="Delete"><i class="icon-remove"></i></a>
+              <a href="{{ url_for('expense_delete', workspace=report.workspace.name, report=report.url_name, expense=expense.id) }}" class="link-util expense-delete no-print" data-id="{{ expense.id }}" title="Delete"><i class="icon-remove"></i></a>
             {%- endif %}
           </td>
         </tr>

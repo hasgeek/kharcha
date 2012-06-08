@@ -2,12 +2,15 @@
 
 from kharcha.models import db, BaseMixin
 from kharcha.models.user import User
+from kharcha.models.workspace import Workspace
 
 __all__ = ['Payment']
 
 
-class Payment(db.Model, BaseMixin):
+class Payment(BaseMixin, db.Model):
     __tablename__ = 'payment'
+    workspace_id = db.Column(db.Integer, db.ForeignKey('workspace.id'), nullable=False)
+    workspace = db.relation(Workspace, backref=db.backref('payments', cascade='all, delete-orphan'))
     #: User who made the payment
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User, primaryjoin=user_id == User.id,

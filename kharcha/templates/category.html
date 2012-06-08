@@ -1,13 +1,24 @@
 {% extends "layout.html" %}
-{% block title %}{{ category.title }}{% endblock %}
-{% block headline %}
-  <div class="page-header">
-    <h1>
-      {{ self.title() }}
-      <small>
-        <a href="{{url_for('category_edit', name=category.name) }}"><i class="icon-edit"></i></a>
-        <a href="{{url_for('category_delete', name=category.name) }}"><i class="icon-remove"></i></a>
-      </small>
-    </h1>
+{% block title %}Category: {{ category.title }}{% endblock %}
+{% block headline %}{% endblock %}
+{% block content %}
+  <div class="row section">
+    <div class="span6 print-span8">
+      <div class="page-header">
+        <h1>
+          {{ self.title() }}
+        </h1>
+      </div>
+      {# If categories had descriptions, they'd be here #}
+    </div>
+    {% if 'siteadmin' in permissions -%}
+      <div class="span3 print-span4">
+        <ul class="well nav nav-list">
+          <li class="no-print"><a href="{{url_for('category_edit', workspace=g.workspace.name, category=category.name) }}"><i class="icon-pencil"></i> Edit details...</a></li>
+          <li class="no-print"><a href="{{url_for('category_delete', workspace=g.workspace.name, category=category.name) }}"><i class="icon-trash"></i> Delete...</a></li>
+        </ul>
+      </div>
+    {% endif %}
   </div>
+  {# TODO: List all expenses with their reports where the expenses are in this category. Maybe sorted by budget? User? #}
 {% endblock %}

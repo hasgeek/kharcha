@@ -23,13 +23,14 @@
             <tbody>
               {% for r in reports[s.name] %}
                 <tr class="link">
-                  <td><a href="{{ url_for('report', id=r.id) }}">#{{ r.id }}</a></td>
-                  <td><a href="{{ url_for('report', id=r.id) }}">{{ r.datetime|longdate }}</a></td>
-                  <td><a href="{{ url_for('report', id=r.id) }}">{{ r.title }}</a></td>
-                  <td><a href="{{ url_for('report', id=r.id) }}">{{ r.budget.title }}</a></td>
-                  <td><a href="{{ url_for('report', id=r.id) }}">{{ r.user.fullname }}</a></td>
-                  <td><a href="{{ url_for('report', id=r.id) }}">{{ r.currency }}</a></td>
-                  <td><a href="{{ url_for('report', id=r.id) }}">{{ r.total_value|format_currency }}</a></td>
+                  {%- set reportlink = url_for('report', workspace=g.workspace.name, report=r.url_name) %}
+                  <td><a href="{{ reportlink }}">#{{ r.url_id }}</a></td>
+                  <td><a href="{{ reportlink }}">{{ r.datetime|longdate }}</a></td>
+                  <td><a href="{{ reportlink }}">{{ r.title }}</a></td>
+                  <td><a href="{{ reportlink }}">{{ r.budget.title }}</a></td>
+                  <td><a href="{{ reportlink }}">{{ r.user.fullname }}</a></td>
+                  <td><a href="{{ reportlink }}">{{ r.currency }}</a></td>
+                  <td><a href="{{ reportlink }}">{{ r.total_value|format_currency }}</a></td>
                 </tr>
               {% else %}
                 <tr>
@@ -43,6 +44,6 @@
     </div>
   </div>
   <p>
-    <a class="btn" href="{{ url_for('report_new')}}">File a new report...</a>
+    <a class="btn" href="{{ url_for('report_new', workspace=g.workspace.name)}}">File a new report...</a>
   </p>
 {% endblock %}

@@ -12,7 +12,7 @@
         </div>
       {%- endif %}
       <div class="page-header">
-        <h3>Report #{{ report.id }}</h3>
+        <h3>Report #{{ report.url_id }}</h3>
         <h1>{{ self.title() }}</h1>
       </div>
       {{ report.description|safe }}
@@ -26,12 +26,12 @@
         {%- endif %}
         <li class="no-print"><i class="icon-cog"></i> Status: {{ workflow.state.title }}</li>
         {% if workflow.can_edit() -%}
-          <li class="no-print"><a href="{{ url_for('report_edit', id=report.id) }}"><i class="icon-pencil"></i> Edit details...</a></li>
+          <li class="no-print"><a href="{{ url_for('report_edit', workspace=g.workspace.name, report=report.url_name) }}"><i class="icon-pencil"></i> Edit details...</a></li>
         {%- endif %}
         {% if workflow.draft() -%}
-          <li class="no-print"><a href="{{ url_for('report_delete', id=report.id) }}"><i class="icon-trash"></i> Delete...</a></li>
+          <li class="no-print"><a href="{{ url_for('report_delete', workspace=g.workspace.name, report=report.url_name) }}"><i class="icon-trash"></i> Delete...</a></li>
         {% endif %}
-        <li class="no-print"><a href="{{ url_for('report_csv', id=report.id) }}"><i class="icon-download"></i> Download as CSV</a></li>
+        <li class="no-print"><a href="{{ url_for('report_csv', workspace=g.workspace.name, report=report.url_name) }}"><i class="icon-download-alt"></i> Download as CSV</a></li>
       </ul>
     </div>
   </div>
@@ -42,7 +42,7 @@
   {% if transitions %}
     <div class="form-actions no-print">
       {%- for transition in transitions.values() %}
-        <form class="form-inline form-button" method="POST" action="{{ url_for(transition.view, id=report.id) }}">
+        <form class="form-inline form-button" method="POST" action="{{ url_for(transition.view, workspace=g.workspace.name, report=report.url_name) }}">
           <button type="submit" data-description="{{ transition.description }}" class="btn{% if transition.category %} btn-{{ transition.category }}{% endif %} confirm-submit">{{ transition.title }}</button>
         </form>
       {%- endfor %}

@@ -8,7 +8,7 @@
     <div class="row">
       <div class="span6">
         {% if report %}
-          <h3>Report #{{ report.id }}</h3>
+          <h3>Report #{{ report.url_id }}</h3>
         {% else %}
           <p class="lead">
             An expense report collects all related expenses in one sheet.
@@ -38,7 +38,7 @@
         </div>
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">{% if report.id %}Save{% else %}Continue{% endif %}</button>
-          <a href="{% if report %}{{ url_for('report', id=report.id) }}{% else %}{{ url_for('reports') }}{% endif %}" class="btn">Cancel</a>
+          <a href="{% if report %}{{ url_for('report', workspace=g.workspace.name, report=report.url_name) }}{% else %}{{ url_for('reports', workspace=g.workspace.name) }}{% endif %}" class="btn">Cancel</a>
         </div>
       </div>
       <div class="span3">

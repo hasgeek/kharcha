@@ -6,7 +6,7 @@
 <script type="text/javascript">
   $(function() {
     $("[data-datepicker]").datepicker();
-    $.ajax("{{ url_for('report_expensetable', id=report.id) }}", {
+    $.ajax("{{ url_for('report_expensetable', workspace=g.workspace.name, report=report.url_name) }}", {
       cache: false,
       success: function(data) {
         $("#expense-table").replaceWith(data);

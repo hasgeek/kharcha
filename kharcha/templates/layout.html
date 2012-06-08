@@ -5,33 +5,40 @@
 {% block baseheadline %}{# Don't use baseframe's headline #}{% endblock %}
 {% block basecontent %}
   <div class="row">
-  	<div class="span3 no-print">
-      <ul class="well nav nav-list section">
-        <li class="nav-header">Expense Reports</li>
-        <li {%- if reportspage %} class="active"{% endif %}><a href="{{ url_for('reports') }}"><i class="icon-inbox {%- if reports %} icon-white {%- endif %}"></i> Your reports</a></li>
-        {%- if report %}
-          <li class="active"><a href="{{ url_for('report', id=report.id) }}"><i class="icon-file icon-white"></i> Report: {{ report.title }}</a></li>
-        {%- endif %}
-        <li {%- if newreport %} class="active" {%- endif %}><a href="{{ url_for('report_new') }}"><i class="icon-pencil {%- if newreport %} icon-white {%- endif %}"></i> File a new report...</a></li>
-        <li {%- if receipts %} class="active"{% endif %}><a href="{{ url_for('receipts') }}"><i class="icon-picture{%- if receipts %} icon-white {%- endif %}"></i> Your receipts</a></li>
-        <li><a href="{{ url_for('receipt_new') }}"><i class="icon-camera"></i> Upload a receipt...</a></li>
-        <li {%- if receipts %} class="active"{% endif %}><a href="{{ url_for('settlements') }}"><i class="icon-envelope {%- if receipts %} icon-whiet {%- endif %}"></i> Settlements</a></li>
-        {% if budget %}
-          {{ budget_list(budgets, selected=budget, permissions=permissions) }}
-        {% else %}
-          {{ budget_list(budgets, permissions=permissions) }}
-        {% endif %}
-        {% if category %}
-          {{ category_list(categories, selected=category, permissions=permissions) }}
-        {% else %}        
-          {{ category_list(categories, permissions=permissions) }}
-        {% endif %}
-      </ul>
-    </div>
-  	<div class="span9 print-span12">
+    <div class="span9 print-span12 push-right">
       {{ flash_messages() }}
       {% block headline %}<div class="page-header"><h1>{{ self.title() }}</h1></div>{% endblock %}
       {% block content %}{% endblock %}
+    </div>
+    <div class="span3 no-print">
+      <ul class="well nav nav-list section">
+        <li class="nav-header">Organizations</li>
+        {% for space in workspaces %}
+          <li><a href="{{ url_for('workspace_view', workspace=space.name) }}"><i class="icon-group"></i> {{ space.title }}{% if g.workspace==space %} <i class="icon-ok"></i>{% endif %}</a></li>
+        {% endfor %}
+        <li><a href="{{ url_for('workspace_new') }}"><i class="icon-plus"></i> New workspace...</a></li>
+        {% if g.workspace %}
+          <li class="nav-header">Expense Reports</li>
+          <li {%- if reportspage %} class="active"{% endif %}><a href="{{ url_for('reports', workspace=g.workspace.name) }}"><i class="icon-inbox {%- if reports %} icon-white {%- endif %}"></i> Your reports</a></li>
+          {%- if report %}
+            <li class="active"><a href="{{ url_for('report', workspace=g.workspace.name, report=report.url_name) }}"><i class="icon-file icon-white"></i> Report: {{ report.title }}</a></li>
+          {%- endif %}
+          <li {%- if newreport %} class="active" {%- endif %}><a href="{{ url_for('report_new', workspace=g.workspace.name) }}"><i class="icon-pencil {%- if newreport %} icon-white {%- endif %}"></i> File a new report...</a></li>
+          <li {%- if receipts %} class="active"{% endif %}><a href="{{ url_for('receipts', workspace=g.workspace.name) }}"><i class="icon-picture{%- if receipts %} icon-white {%- endif %}"></i> Your receipts</a></li>
+          <li><a href="{{ url_for('receipt_new', workspace=g.workspace.name) }}"><i class="icon-camera"></i> Upload a receipt...</a></li>
+          <li {%- if receipts %} class="active"{% endif %}><a href="{{ url_for('settlements', workspace=g.workspace.name) }}"><i class="icon-money {%- if receipts %} icon-whiet {%- endif %}"></i> Settlements</a></li>
+          {% if budget %}
+            {{ budget_list(workspace=g.workspace, budgets=budgets, selected=budget, permissions=permissions) }}
+          {% else %}
+            {{ budget_list(workspace=g.workspace, budgets=budgets, permissions=permissions) }}
+          {% endif %}
+          {% if category %}
+            {{ category_list(workspace=g.workspace, categories=categories, selected=category, permissions=permissions) }}
+          {% else %}        
+            {{ category_list(workspace=g.workspace, categories=categories, permissions=permissions) }}
+          {% endif %}
+        {% endif %}
+      </ul>
     </div>
   </div>
 {% endblock %}

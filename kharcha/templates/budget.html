@@ -1,5 +1,5 @@
 {% extends "layout.html" %}
-{% block title %}{{ budget.title }}{% endblock %}
+{% block title %}Budget: {{ budget.title }}{% endblock %}
 {% block headline %}{% endblock %}
 
 {% block content %}
@@ -15,8 +15,8 @@
     {% if 'siteadmin' in permissions -%}
       <div class="span3 print-span4">
         <ul class="well nav nav-list">
-          <li class="no-print"><a href="{{ url_for('budget_edit', name=budget.name) }}"><i class="icon-pencil"></i> Edit details...</a></li>
-          <li class="no-print"><a href="{{ url_for('budget_delete', name=budget.name) }}"><i class="icon-trash"></i> Delete...</a></li>
+          <li class="no-print"><a href="{{ url_for('budget_edit', workspace=g.workspace.name, budget=budget.name) }}"><i class="icon-pencil"></i> Edit details...</a></li>
+          <li class="no-print"><a href="{{ url_for('budget_delete', workspace=g.workspace.name, budget=budget.name) }}"><i class="icon-trash"></i> Delete...</a></li>
         </ul>
       </div>
     {% endif %}
@@ -39,12 +39,13 @@
             <tr><td colspan="6"><h2>{{ s.title }}</h2></td></tr>
             {%- for r in reports[s.name] %}
               <tr class="link">
-                <td><a href="{{ url_for('report', id=r.id) }}">#{{ r.id }}</a></td>
-                <td><a href="{{ url_for('report', id=r.id) }}">{{ r.datetime|longdate }}</a></td>
-                <td><a href="{{ url_for('report', id=r.id) }}">{{ r.title }}</a></td>
-                <td><a href="{{ url_for('report', id=r.id) }}">{{ r.user.fullname }}</a></td>
-                <td><a href="{{ url_for('report', id=r.id) }}">{{ r.currency }}</a></td>
-                <td class="num"><a href="{{ url_for('report', id=r.id) }}">{{ r.total_value|format_currency }}</a></td>
+                {%- set reportlink = url_for('report', workspace=g.workspace.name, report=r.url_name) %}
+                <td><a href="{{ reportlink }}">#{{ r.url_id }}</a></td>
+                <td><a href="{{ reportlink }}">{{ r.datetime|longdate }}</a></td>
+                <td><a href="{{ reportlink }}">{{ r.title }}</a></td>
+                <td><a href="{{ reportlink }}">{{ r.user.fullname }}</a></td>
+                <td><a href="{{ reportlink }}">{{ r.currency }}</a></td>
+                <td class="num"><a href="{{ reportlink }}">{{ r.total_value|format_currency }}</a></td>
               </tr>
             {%- endfor %}
           {%- endif %}
