@@ -19,3 +19,4 @@ nosetests.xml
 .sass-cache
 kharcha/static/js/baseframe-packed.js
 kharcha/static/css/baseframe-packed.css
+error.log
