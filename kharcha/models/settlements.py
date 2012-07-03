@@ -20,4 +20,4 @@ class Payment(BaseMixin, db.Model):
     #: Currency for payment
     currency = db.Column(db.Unicode(3), nullable=False, default=u'INR')
     #: Amount of payment
-    amount = db.Column(db.Numeric(scale=2), default=0, nullable=False)
+    amount = db.Column(db.Numeric(10, 2), default=0, nullable=False)

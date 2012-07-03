@@ -70,9 +70,9 @@ class ExpenseReport(BaseScopedIdNameMixin, db.Model):
     #: Optional description of expenses
     description = db.Column(db.Text, nullable=False, default=u'')
     #: Total value in the report's currency
-    total_value = db.Column(db.Numeric(scale=2), nullable=False, default=Decimal('0.0'))
+    total_value = db.Column(db.Numeric(10, 2), nullable=False, default=Decimal('0.0'))
     #: Total value in the organization's preferred currency
-    total_converted = db.Column(db.Numeric(scale=2), nullable=False, default=Decimal('0.0'))
+    total_converted = db.Column(db.Numeric(10, 2), nullable=False, default=Decimal('0.0'))
     #: Reviewer
     reviewer_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     reviewer = db.relationship(User, primaryjoin=reviewer_id == User.id,
@@ -115,7 +115,7 @@ class Expense(BaseMixin, db.Model):
     #: Description
     description = db.Column(db.Unicode(250), nullable=False)
     #: Amount of expense
-    amount = db.Column(db.Numeric(scale=2), default=0, nullable=False)
+    amount = db.Column(db.Numeric(10, 2), default=0, nullable=False)
     #: Report in which this expense is recorded
     report = db.relationship(ExpenseReport, primaryjoin=report_id == ExpenseReport.id,
         backref=db.backref('expenses', cascade='all, delete-orphan', order_by=seq))
