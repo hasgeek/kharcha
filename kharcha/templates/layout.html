@@ -32,10 +32,12 @@
           {% else %}
             {{ budget_list(workspace=g.workspace, budgets=budgets, permissions=permissions) }}
           {% endif %}
-          {% if category %}
-            {{ category_list(workspace=g.workspace, categories=categories, selected=category, permissions=permissions) }}
-          {% else %}        
-            {{ category_list(workspace=g.workspace, categories=categories, permissions=permissions) }}
+          {% if g.user and g.workspace.userid in g.user.organizations_owned_ids() %}
+            {% if category %}
+              {{ category_list(workspace=g.workspace, categories=categories, selected=category, permissions=permissions) }}
+            {% else %}        
+              {{ category_list(workspace=g.workspace, categories=categories, permissions=permissions) }}
+            {% endif %}
           {% endif %}
         {% endif %}
       </ul>
