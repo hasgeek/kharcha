@@ -2,7 +2,7 @@
 {% block title %}Expense reports{% endblock %}
 {% block content %}
   <div class="tabbable">
-    <ul class="nav nav-tabs">
+    <ul class="nav nav-tabs nav-tabs-auto">
       {% for s in report_states %}
         <li><a href="#report-{{ s.name }}" data-toggle="tab">{{ s.title }}</a></li>
       {% endfor %}
