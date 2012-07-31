@@ -15,8 +15,8 @@
     {% if 'siteadmin' in permissions -%}
       <div class="span3 print-span4">
         <ul class="well nav nav-list">
-          <li class="no-print"><a href="{{ url_for('budget_edit', workspace=g.workspace.name, budget=budget.name) }}"><i class="icon-pencil"></i> Edit details...</a></li>
-          <li class="no-print"><a href="{{ url_for('budget_delete', workspace=g.workspace.name, budget=budget.name) }}"><i class="icon-trash"></i> Delete...</a></li>
+          <li class="no-print"><a href="{{ url_for('budget_edit', workspace=g.workspace.name, budget=budget.name) }}"><span class="icon-pencil">Edit details...</span></a></li>
+          <li class="no-print"><a href="{{ url_for('budget_delete', workspace=g.workspace.name, budget=budget.name) }}"><span class="icon-trash"> Delete...</span></a></li>
         </ul>
       </div>
     {% endif %}

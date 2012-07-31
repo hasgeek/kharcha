@@ -19,19 +19,19 @@
     </div>
     <div class="span3 print-span4">
       <ul class="well nav nav-list">
-        <li><i class="icon-user"></i> {{ report.user.fullname }}</li>
-        <li><i class="icon-calendar"></i> {{ report.datetime|longdate }}</li>
+        <li><span class="icon-user">{{ report.user.fullname }}</span></li>
+        <li><span class="icon-calendar">{{ report.datetime|longdate }}</span></li>
         {% if report.budget -%}
-          <li><i class="icon-book"></i> {{ report.budget.title }}</li>
+          <li><span class="icon-book">{{ report.budget.title }}</span></li>
         {%- endif %}
-        <li class="no-print"><i class="icon-cog"></i> Status: {{ workflow.state.title }}</li>
+        <li class="no-print"><span class="icon-cog">Status: {{ workflow.state.title }}</span></li>
         {% if workflow.can_edit() -%}
-          <li class="no-print"><a href="{{ url_for('report_edit', workspace=g.workspace.name, report=report.url_name) }}"><i class="icon-pencil"></i> Edit details...</a></li>
+          <li class="no-print"><a href="{{ url_for('report_edit', workspace=g.workspace.name, report=report.url_name) }}"><span class="icon-pencil"> Edit details...</span></a></li>
         {%- endif %}
         {% if workflow.draft() -%}
-          <li class="no-print"><a href="{{ url_for('report_delete', workspace=g.workspace.name, report=report.url_name) }}"><i class="icon-trash"></i> Delete...</a></li>
+          <li class="no-print"><a href="{{ url_for('report_delete', workspace=g.workspace.name, report=report.url_name) }}"><span class="icon-trash">Delete...</span></a></li>
         {% endif %}
-        <li class="no-print"><a href="{{ url_for('report_csv', workspace=g.workspace.name, report=report.url_name) }}"><i class="icon-download-alt"></i> Download as CSV</a></li>
+        <li class="no-print"><a href="{{ url_for('report_csv', workspace=g.workspace.name, report=report.url_name) }}"><span class="icon-download-alt">Download as CSV</span></a></li>
       </ul>
     </div>
   </div>

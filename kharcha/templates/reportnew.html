@@ -44,13 +44,13 @@
       <div class="span3">
         <ul class="well nav nav-list section">
           {%- if report %}
-            <li><i class="icon-user"></i> {{ report.user.fullname }}</li>
-            <li><i class="icon-calendar"></i> {{ report.datetime|longdate }}</li>
-            <li><i class="icon-cog"></i> Status: {{ workflow.state.title }}</li>
+            <li><span class="icon-user">{{ report.user.fullname }}</span></li>
+            <li><span class="icon-calendar">{{ report.datetime|longdate }}</span></li>
+            <li><span class="icon-cog">Status: {{ workflow.state.title }}</span></li>
           {%- else -%}
-            <li><i class="icon-user"></i> {{ g.user.fullname }}</li>
-            <li><i class="icon-calendar"></i> Today</li>
-            <li><i class="icon-cog"></i> Status: New</li>
+            <li><span class="icon-user">{{ g.user.fullname }}</span></li>
+            <li><span class="icon-calendar">Today</span></li>
+            <li><span class="icon-cog">Status: New</span></li>
           {%- endif %}
         </ul>
       </div>
