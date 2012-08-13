@@ -63,18 +63,24 @@
     {% endif %}#}
     {{ form.hidden_tag() }}
     <input type="hidden" name="id" id="expense-id" value="{{ form.id.data or '' }}">
-    <span class="control-group{% if form.date.errors %} error{% endif %}"><input type="text" data-datepicker="datepicker" id="expense-date" name="date" class="input-small" placeholder="Date" value="{{ form.date.data or '' }}"></span>
-    <span class="control-group{% if form.category.errors %} error{% endif %}"><select data-placeholder="Category" class="input-medium" name="category" id="expense-category">
-      <option value=""></option>
-      {% for c in categories %}
-        <option value="{{ c.id }}" {%- if c.id == form.category.data.id %} selected {%- endif %}>{{ c.title }}</option>
-      {% endfor %}
-    </select></span>
-    <span class="control-group{% if form.description.errors %} error{% endif %}"><input type="text" name="description" id="expense-description" class="input-xlarge" placeholder="Description" value="{{ form.description.data or '' }}"></span>
-    <span class="control-group{% if form.amount.errors %} error{% endif %}"><input type="text" name="amount" id="expense-amount" class="input-small" placeholder="Amount" value="{{ form.amount.data or '' }}"></span>
-    <input type="submit" class="btn btn-primary" id="expense-add" value="{% if form.id.data %}Save{% else %}Add{% endif %}">
-    <a href="#" class="btn" id="expense-cancel">Cancel</a>
-    <span class="loading hidden"></span>
+    <span class="rwd-line">
+      <span class="control-group{% if form.date.errors %} error{% endif %}"><input type="text" data-datepicker="datepicker" id="expense-date" name="date" class="input-small" placeholder="Date" value="{{ form.date.data or '' }}"></span>
+      <span class="control-group{% if form.category.errors %} error{% endif %}"><select data-placeholder="Category" class="input-medium" name="category" id="expense-category">
+        <option value=""></option>
+        {% for c in categories %}
+          <option value="{{ c.id }}" {%- if c.id == form.category.data.id %} selected {%- endif %}>{{ c.title }}</option>
+        {% endfor %}
+      </select></span>
+    </span>
+    <span class="rwd-line">
+      <span class="control-group{% if form.description.errors %} error{% endif %}"><input type="text" name="description" id="expense-description" class="input-xlarge" placeholder="Description" value="{{ form.description.data or '' }}"></span>
+    </span>
+    <span class="rwd-line">
+      <span class="control-group{% if form.amount.errors %} error{% endif %}"><input type="text" name="amount" id="expense-amount" class="input-small" placeholder="Amount" value="{{ form.amount.data or '' }}"></span>
+      <button type="submit" class="btn btn-primary" id="expense-add">{% if form.id.data %}Save{% else %}Add{% endif %}</button>
+      <a href="#" class="btn" id="expense-cancel">Cancel</a>
+      <span class="loading hidden"></span>
+    </span>
   </form>
 {% endmacro %}
 

@@ -8,7 +8,9 @@
     <div class="row">
       <div class="span6">
         {% if report %}
-          <h3>Report #{{ report.url_id }}</h3>
+          <div class="page-header">
+            <h3>Report #{{ report.url_id }}</h3>
+          </div>
         {% else %}
           <p class="lead">
             An expense report collects all related expenses in one sheet.
