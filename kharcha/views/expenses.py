@@ -24,12 +24,12 @@ def format_currency(value):
     return coaster_format_currency(value, decimals=2)
 
 
-def available_reports(workspace, user=None):
+def available_reports(workspace, user=None, all=False):
     if user is None:
         user = g.user
     query = ExpenseReport.query.filter_by(workspace=workspace).order_by('datetime')
     # FIXME+TODO: Replace with per-workspace permissions
-    if 'reviewer' in lastuser.permissions():
+    if all and 'reviewer' in lastuser.permissions():
         # Get all reports owned by this user and in states where the user can review them
         query = query.filter(db.or_(
             ExpenseReport.user == user,
@@ -62,6 +62,15 @@ def reports(workspace):
     # Sort reports by status
     reports = ExpenseReportWorkflow.sort_documents(available_reports(workspace).all())
     return render_template('reports.html', reports=reports, reportspage=True)
+
+
+@app.route('/<workspace>/reports/all')
+@load_model(Workspace, {'name': 'workspace'}, 'workspace')
+@requires_workspace_member
+def reports_all(workspace):
+    # Sort reports by status
+    reports = ExpenseReportWorkflow.sort_documents(available_reports(workspace, all=True).all())
+    return render_template('reports.html', reports=reports, allreportspage=True)
 
 
 def report_edit_internal(workspace, form, report=None, workflow=None):

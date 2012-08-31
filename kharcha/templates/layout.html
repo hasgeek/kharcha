@@ -20,6 +20,7 @@
         {% if g.workspace %}
           <li class="nav-header">Expense Reports</li>
           <li {%- if reportspage %} class="active"{% endif %}><a href="{{ url_for('reports', workspace=g.workspace.name) }}"><span class="icon-inbox">Your reports</span></a></li>
+          <li {%- if allreportspage %} class="active"{% endif %}><a href="{{ url_for('reports_all', workspace=g.workspace.name) }}"><span class="icon-inbox">All reports</span></a></li>
           {%- if report %}
             <li class="active"><a href="{{ url_for('report', workspace=g.workspace.name, report=report.url_name) }}"><span class="icon-file">Report: {{ report.title }}</span></a></li>
           {%- endif %}
