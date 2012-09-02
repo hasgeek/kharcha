@@ -5,7 +5,6 @@ from flask import g
 from coaster.docflow import DocumentWorkflow, WorkflowState, WorkflowStateGroup
 from kharcha.models import REPORT_STATUS, ExpenseReport
 from kharcha.forms import ReviewForm
-from kharcha.views.login import lastuser
 
 
 class ExpenseReportWorkflow(DocumentWorkflow):
@@ -16,7 +15,7 @@ class ExpenseReportWorkflow(DocumentWorkflow):
     state_attr = 'status'
 
     draft = WorkflowState(REPORT_STATUS.DRAFT, title=u"Draft")
-    pending = WorkflowState(REPORT_STATUS.PENDING, title=u"Pending")
+    pending = WorkflowState(REPORT_STATUS.PENDING, title=u"Pending review")
     review = WorkflowState(REPORT_STATUS.REVIEW, title=u"Returned for review")
     accepted = WorkflowState(REPORT_STATUS.ACCEPTED, title=u"Accepted")
     rejected = WorkflowState(REPORT_STATUS.REJECTED, title=u"Rejected")
@@ -29,15 +28,15 @@ class ExpenseReportWorkflow(DocumentWorkflow):
     reviewable = WorkflowStateGroup([pending, review, accepted, rejected, closed],
                                     title=u"Reviewable")
 
-    def permissions(self):
+    def permissions(self, user=None):
         """
         Permissions available to current user.
         """
         base_permissions = super(ExpenseReportWorkflow,
                                  self).permissions()
-        if self.document.user == g.user:
-            base_permissions.append('owner')
-        base_permissions.extend(lastuser.permissions())
+        if user is None:
+            user = g.user
+        base_permissions.extend(self.document.permissions(user))
         return base_permissions
 
     @draft.transition(pending, 'owner', title=u"Submit", category="primary",
@@ -64,7 +63,7 @@ class ExpenseReportWorkflow(DocumentWorkflow):
         self.document.datetime = datetime.utcnow()
         # TODO: Notify reviewers
 
-    @pending.transition(accepted, 'reviewer', title=u"Accept", category="primary",
+    @pending.transition(accepted, 'review', title=u"Accept", category="primary",
         description=u"Accept this expense report and queue it for reimbursements?",
         view='report_accept')
     def accept(self, reviewer):
@@ -74,7 +73,7 @@ class ExpenseReportWorkflow(DocumentWorkflow):
         # TODO: Notify owner of acceptance
         self.document.reviewer = reviewer
 
-    @pending.transition(review, 'reviewer', title=u"Return for review", category="warning",
+    @pending.transition(review, 'review', title=u"Return for review", category="warning",
         description=u"Return this expense report to the submitter for review?",
         view='report_return', form=ReviewForm)
     def return_for_review(self, reviewer, notes):
@@ -85,7 +84,7 @@ class ExpenseReportWorkflow(DocumentWorkflow):
         self.document.reviewer = reviewer
         self.document.notes = notes
 
-    @pending.transition(rejected, 'reviewer', title=u"Reject", category="danger",
+    @pending.transition(rejected, 'review', title=u"Reject", category="danger",
         description=u"Reject this expense report? Rejected reports are archived but cannot be processed again.",
         view='report_reject', form=ReviewForm)
     def reject(self, reviewer, notes):
@@ -105,7 +104,7 @@ class ExpenseReportWorkflow(DocumentWorkflow):
         """
         pass
 
-    @accepted.transition(closed, 'reviewer', title=u"Close", category="success",
+    @accepted.transition(closed, 'review', title=u"Close", category="success",
         description=u"Mark this expense report as reimbursed? "
             u"This will archive the report, after which it cannot be processed again.",
         view='report_close')
@@ -115,23 +114,6 @@ class ExpenseReportWorkflow(DocumentWorkflow):
         """
         # TODO: Notify owner of closure.
         pass
-
-    def can_view(self):
-        """
-        Can the current user view this?
-        """
-        permissions = self.permissions()
-        if 'owner' in permissions:
-            return True
-        if 'reviewer' in permissions and self.reviewable():
-            return True
-        return False
-
-    def can_edit(self):
-        """
-        Can the current user edit this?
-        """
-        return 'owner' in self.permissions() and self.editable()
 
 # Apply this workflow on ExpenseReport objects
 ExpenseReportWorkflow.apply_on(ExpenseReport)

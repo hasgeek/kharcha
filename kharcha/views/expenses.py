@@ -6,7 +6,7 @@ Manage expense reports
 
 import csv
 import StringIO
-from flask import g, flash, url_for, render_template, request, redirect, abort, Response
+from flask import g, flash, url_for, render_template, request, redirect, Response
 from werkzeug.datastructures import MultiDict
 from coaster import format_currency as coaster_format_currency
 from coaster.views import load_model, load_models
@@ -14,7 +14,6 @@ from baseframe.forms import render_form, render_redirect, render_delete_sqla, Co
 
 from kharcha import app
 from kharcha.forms import ExpenseReportForm, ExpenseForm
-from kharcha.views.login import lastuser, requires_workspace_member
 from kharcha.views.workflows import ExpenseReportWorkflow
 from kharcha.models import db, Workspace, ExpenseReport, Expense, Budget
 
@@ -29,7 +28,7 @@ def available_reports(workspace, user=None, all=False):
         user = g.user
     query = ExpenseReport.query.filter_by(workspace=workspace).order_by('datetime')
     # FIXME+TODO: Replace with per-workspace permissions
-    if all and 'reviewer' in lastuser.permissions():
+    if all and 'review' in g.permissions:
         # Get all reports owned by this user and in states where the user can review them
         query = query.filter(db.or_(
             ExpenseReport.user == user,
@@ -41,10 +40,10 @@ def available_reports(workspace, user=None, all=False):
 
 @app.route('/<workspace>/budgets/<budget>')
 @load_models(
-    (Workspace, {'name': 'workspace'}, 'workspace'),
-    (Budget, {'name': 'budget', 'workspace': 'workspace'}, 'budget')
+    (Workspace, {'name': 'workspace'}, 'g.workspace'),
+    (Budget, {'name': 'budget', 'workspace': 'workspace'}, 'budget'),
+    permission='view'
     )
-@requires_workspace_member
 def budget(workspace, budget):
     unsorted_reports = available_reports(workspace).filter_by(budget=budget).all()
     if unsorted_reports:
@@ -56,8 +55,7 @@ def budget(workspace, budget):
 
 
 @app.route('/<workspace>/reports/')
-@load_model(Workspace, {'name': 'workspace'}, 'workspace')
-@requires_workspace_member
+@load_model(Workspace, {'name': 'workspace'}, 'g.workspace', permission='view')
 def reports(workspace):
     # Sort reports by status
     reports = ExpenseReportWorkflow.sort_documents(available_reports(workspace).all())
@@ -65,8 +63,7 @@ def reports(workspace):
 
 
 @app.route('/<workspace>/reports/all')
-@load_model(Workspace, {'name': 'workspace'}, 'workspace')
-@requires_workspace_member
+@load_model(Workspace, {'name': 'workspace'}, 'g.workspace', permission='view')
 def reports_all(workspace):
     # Sort reports by status
     reports = ExpenseReportWorkflow.sort_documents(available_reports(workspace, all=True).all())
@@ -93,8 +90,7 @@ def report_edit_internal(workspace, form, report=None, workflow=None):
 
 
 @app.route('/<workspace>/reports/new', methods=['GET', 'POST'])
-@load_model(Workspace, {'name': 'workspace'}, 'workspace')
-@requires_workspace_member
+@load_model(Workspace, {'name': 'workspace'}, 'g.workspace', permission='new-report')
 def report_new(workspace):
     form = ExpenseReportForm(prefix='report')
     return report_edit_internal(workspace, form)
@@ -102,14 +98,12 @@ def report_new(workspace):
 
 @app.route('/<workspace>/reports/<report>', methods=['GET', 'POST'])
 @load_models(
-    (Workspace, {'name': 'workspace'}, 'workspace'),
-    (ExpenseReport, {'url_name': 'report', 'workspace': 'workspace'}, 'report')
+    (Workspace, {'name': 'workspace'}, 'g.workspace'),
+    (ExpenseReport, {'url_name': 'report', 'workspace': 'workspace'}, 'report'),
+    permission='view'
     )
-@requires_workspace_member
 def report(workspace, report):
     workflow = report.workflow()
-    if not workflow.can_view():
-        abort(403)
     expenseform = ExpenseForm()
     expenseform.report = report
     if expenseform.validate_on_submit():
@@ -144,28 +138,23 @@ def report(workspace, report):
 
 @app.route('/<workspace>/reports/<report>/expensetable')
 @load_models(
-    (Workspace, {'name': 'workspace'}, 'workspace'),
-    (ExpenseReport, {'url_name': 'report', 'workspace': 'workspace'}, 'report')
+    (Workspace, {'name': 'workspace'}, 'g.workspace'),
+    (ExpenseReport, {'url_name': 'report', 'workspace': 'workspace'}, 'report'),
+    permission='view'
     )
-@requires_workspace_member
 def report_expensetable(workspace, report):
     workflow = report.workflow()
-    if not workflow.can_view():
-        abort(403)
     return render_template('expensetable.html',
         report=report, workflow=workflow)
 
 
 @app.route('/<workspace>/reports/<report>/csv')
 @load_models(
-    (Workspace, {'name': 'workspace'}, 'workspace'),
-    (ExpenseReport, {'url_name': 'report', 'workspace': 'workspace'}, 'report')
+    (Workspace, {'name': 'workspace'}, 'g.workspace'),
+    (ExpenseReport, {'url_name': 'report', 'workspace': 'workspace'}, 'report'),
+    permission='view'
     )
-@requires_workspace_member
 def report_csv(workspace, report):
-    workflow = report.workflow()
-    if not workflow.can_view():
-        abort(403)
     outfile = StringIO.StringIO()
     out = csv.writer(outfile)
     out.writerow(['Date', 'Category', 'Description', 'Amount'])
@@ -184,17 +173,12 @@ def report_csv(workspace, report):
 
 @app.route('/<workspace>/reports/<report>/edit', methods=['GET', 'POST'])
 @load_models(
-    (Workspace, {'name': 'workspace'}, 'workspace'),
-    (ExpenseReport, {'url_name': 'report', 'workspace': 'workspace'}, 'report')
+    (Workspace, {'name': 'workspace'}, 'g.workspace'),
+    (ExpenseReport, {'url_name': 'report', 'workspace': 'workspace'}, 'report'),
+    permission='edit'
     )
-@requires_workspace_member
 def report_edit(workspace, report):
     workflow = report.workflow()
-    if not workflow.can_view():
-        abort(403)
-    if not workflow.can_edit():
-        return render_template('baseframe/message.html',
-            message=u"You cannot edit this report at this time.")
     form = ExpenseReportForm(obj=report)
     return report_edit_internal(workspace, form, report, workflow)
 
@@ -211,17 +195,11 @@ def report_edit(workspace, report):
 
 @app.route('/<workspace>/reports/<report>/delete', methods=['GET', 'POST'])
 @load_models(
-    (Workspace, {'name': 'workspace'}, 'workspace'),
-    (ExpenseReport, {'url_name': 'report', 'workspace': 'workspace'}, 'report')
+    (Workspace, {'name': 'workspace'}, 'g.workspace'),
+    (ExpenseReport, {'url_name': 'report', 'workspace': 'workspace'}, 'report'),
+    permission='delete'
     )
-@requires_workspace_member
 def report_delete(workspace, report):
-    workflow = report.workflow()
-    if not workflow.can_view():
-        abort(403)
-    if not workflow.draft():
-        # Only drafts can be deleted
-        return render_template('baseframe/message.html', message=u"Only draft expense reports can be deleted.")
     # Confirm delete
     return render_delete_sqla(report, db, title=u"Confirm delete",
         message=u"Delete expense report '%s'?" % report.title,
@@ -231,17 +209,12 @@ def report_delete(workspace, report):
 
 @app.route('/<workspace>/reports/<report>/<expense>/delete', methods=['GET', 'POST'])
 @load_models(
-    (Workspace, {'name': 'workspace'}, 'workspace'),
+    (Workspace, {'name': 'workspace'}, 'g.workspace'),
     (ExpenseReport, {'url_name': 'report', 'workspace': 'workspace'}, 'report'),
-    (Expense, {'report': 'report', 'id': 'expense'}, 'expense')
+    (Expense, {'report': 'report', 'id': 'expense'}, 'expense'),
+    permission='delete'
     )
-@requires_workspace_member
 def expense_delete(workspace, report, expense):
-    workflow = report.workflow()
-    if not workflow.can_view():
-        abort(403)
-    if not workflow.can_edit():
-        abort(403)
     form = ConfirmDeleteForm()
     if form.validate_on_submit():
         if 'delete' in request.form:
@@ -258,10 +231,10 @@ def expense_delete(workspace, report, expense):
 
 @app.route('/<workspace>/reports/<report>/submit', methods=['POST'])
 @load_models(
-    (Workspace, {'name': 'workspace'}, 'workspace'),
-    (ExpenseReport, {'url_name': 'report', 'workspace': 'workspace'}, 'report')
+    (Workspace, {'name': 'workspace'}, 'g.workspace'),
+    (ExpenseReport, {'url_name': 'report', 'workspace': 'workspace'}, 'report'),
+    permission='edit'
     )
-@requires_workspace_member
 def report_submit(workspace, report):
     wf = report.workflow()
     if wf.document.expenses == []:
@@ -275,10 +248,10 @@ def report_submit(workspace, report):
 
 @app.route('/<workspace>/reports/<report>/resubmit', methods=['POST'])
 @load_models(
-    (Workspace, {'name': 'workspace'}, 'workspace'),
-    (ExpenseReport, {'url_name': 'report', 'workspace': 'workspace'}, 'report')
+    (Workspace, {'name': 'workspace'}, 'g.workspace'),
+    (ExpenseReport, {'url_name': 'report', 'workspace': 'workspace'}, 'report'),
+    permission='edit'
     )
-@requires_workspace_member
 def report_resubmit(workspace, report):
     wf = report.workflow()
     if wf.document.expenses == []:
@@ -292,10 +265,10 @@ def report_resubmit(workspace, report):
 
 @app.route('/<workspace>/reports/<report>/accept', methods=['POST'])
 @load_models(
-    (Workspace, {'name': 'workspace'}, 'workspace'),
-    (ExpenseReport, {'url_name': 'report', 'workspace': 'workspace'}, 'report')
+    (Workspace, {'name': 'workspace'}, 'g.workspace'),
+    (ExpenseReport, {'url_name': 'report', 'workspace': 'workspace'}, 'report'),
+    permission='review'
     )
-@requires_workspace_member
 def report_accept(workspace, report):
     wf = report.workflow()
     wf.accept(reviewer=g.user)
@@ -306,10 +279,10 @@ def report_accept(workspace, report):
 
 @app.route('/<workspace>/reports/<report>/return_for_review', methods=['POST'])
 @load_models(
-    (Workspace, {'name': 'workspace'}, 'workspace'),
-    (ExpenseReport, {'url_name': 'report', 'workspace': 'workspace'}, 'report')
+    (Workspace, {'name': 'workspace'}, 'g.workspace'),
+    (ExpenseReport, {'url_name': 'report', 'workspace': 'workspace'}, 'report'),
+    permission='review'
     )
-@requires_workspace_member
 def report_return(workspace, report):
     wf = report.workflow()
     wf.return_for_review(reviewer=g.user, notes=u'')  # TODO: Form for notes
@@ -321,10 +294,10 @@ def report_return(workspace, report):
 
 @app.route('/<workspace>/reports/<report>/reject', methods=['POST'])
 @load_models(
-    (Workspace, {'name': 'workspace'}, 'workspace'),
-    (ExpenseReport, {'url_name': 'report', 'workspace': 'workspace'}, 'report')
+    (Workspace, {'name': 'workspace'}, 'g.workspace'),
+    (ExpenseReport, {'url_name': 'report', 'workspace': 'workspace'}, 'report'),
+    permission='review'
     )
-@requires_workspace_member
 def report_reject(workspace, report):
     wf = report.workflow()
     wf.reject(reviewer=g.user, notes=u'')  # TODO: Form for notes
@@ -335,10 +308,10 @@ def report_reject(workspace, report):
 
 @app.route('/<workspace>/reports/<report>/withdraw', methods=['POST'])
 @load_models(
-    (Workspace, {'name': 'workspace'}, 'workspace'),
-    (ExpenseReport, {'url_name': 'report', 'workspace': 'workspace'}, 'report')
+    (Workspace, {'name': 'workspace'}, 'g.workspace'),
+    (ExpenseReport, {'url_name': 'report', 'workspace': 'workspace'}, 'report'),
+    permission='withdraw'
     )
-@requires_workspace_member
 def report_withdraw(workspace, report):
     wf = report.workflow()
     wf.withdraw()
@@ -349,10 +322,10 @@ def report_withdraw(workspace, report):
 
 @app.route('/<workspace>/reports/<report>/close', methods=['POST'])
 @load_models(
-    (Workspace, {'name': 'workspace'}, 'workspace'),
-    (ExpenseReport, {'url_name': 'report', 'workspace': 'workspace'}, 'report')
+    (Workspace, {'name': 'workspace'}, 'g.workspace'),
+    (ExpenseReport, {'url_name': 'report', 'workspace': 'workspace'}, 'report'),
+    permission='review'
     )
-@requires_workspace_member
 def report_close(workspace, report):
     wf = report.workflow()
     wf.close()

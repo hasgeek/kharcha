@@ -25,7 +25,7 @@
           <li><span class="icon-book">{{ report.budget.title }}</span></li>
         {%- endif %}
         <li class="no-print"><span class="icon-cog">Status: {{ workflow.state.title }}</span></li>
-        {% if workflow.can_edit() -%}
+        {% if 'edit' in g.permissions -%}
           <li class="no-print"><a href="{{ url_for('report_edit', workspace=g.workspace.name, report=report.url_name) }}"><span class="icon-pencil"> Edit details...</span></a></li>
         {%- endif %}
         {% if workflow.draft() -%}
@@ -35,10 +35,10 @@
       </ul>
     </div>
   </div>
-  {% if workflow.can_edit() %}
+  {% if 'edit' in g.permissions %}
     {{ newexpense(expenseform, categories) }}
   {% endif %}
-  {{ expensetable(report, workflow) }}
+  {{ expensetable(report, workflow, permissions=g.permissions) }}
   {% if transitions %}
     <div class="form-actions no-print">
       {%- for transition in transitions.values() %}
@@ -56,7 +56,7 @@
       </p>
     </div>
   </div>
-  <div class="modal fade" id="confirm-transition">
+  <div class="modal hide" id="confirm-transition">
     <div class="modal-header">
       <a class="close" data-dismiss="modal">&times;</a>
       <h2>Confirm action</h2>

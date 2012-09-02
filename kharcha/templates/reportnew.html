@@ -21,7 +21,7 @@
         {%- endif %}
         {{ form.hidden_tag() }}
         <h2>{{ form.title.label.text }} <small>{{ form.title.description }}{% if form.title.flags.required %} (required){% endif %}</small></h2>
-        <span class="control-group{% if form.title.errors %} error{% endif %}">{{ form.title(class="input-primary span6", autofocus="autofocus") }}</span>
+        <span class="control-group{% if form.title.errors %} error{% endif %}">{{ form.title(class="field-title span6", autofocus="autofocus") }}</span>
         <div class="section">
           <h3>{{ form.description.label.text }} <small>{{ form.description.description }} (optional)</small></h3>
           <span class="control-group{% if form.description.errors %} error{% endif %}">{{ form.description }}</span>
@@ -59,7 +59,7 @@
     </div>
   </form>
   {%- if report %}
-    {{ expensetable(report, workflow, editlinks=false) }}
+    {{ expensetable(report, workflow, permissions=g.permissions, editlinks=false) }}
   {% else %}
     <h3>Expenses <small>Click on Continue to add and edit expenses</small></h3>
     <table id="expense-table" class="table table-bordered table-condensed table-disabled">

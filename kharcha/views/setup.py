@@ -4,14 +4,13 @@
 Manage budgets and categories
 """
 
-from flask import flash, url_for, render_template, g
+from flask import flash, url_for, render_template, g, Markup, request
 from coaster.views import load_model, load_models
 from baseframe.forms import render_form, render_redirect, render_delete_sqla, render_message
 
-from kharcha import app
-from kharcha.views.login import lastuser, requires_workspace_member, requires_workspace_owner
-from kharcha.models import db, Budget, Category, Workspace
-from kharcha.forms import BudgetForm, CategoryForm, NewWorkspaceForm
+from kharcha import app, lastuser
+from kharcha.models import db, Team, Budget, Category, Workspace
+from kharcha.forms import BudgetForm, CategoryForm, NewWorkspaceForm, WorkspaceForm
 
 
 @app.route('/new', methods=['GET', 'POST'])
@@ -27,35 +26,79 @@ def workspace_new():
             new_workspaces.append((org['userid'], org['title']))
     if not new_workspaces:
         return render_message(
-            title=u"No organizations remaining",
-            message=u"You do not have any organizations that do not yet have a workspace.")
+            title=u"No organizations found",
+            message=Markup(u"You do not have any organizations that do not already have a workspace. "
+                u'Would you like to <a href="%s">create a new organization</a>?' %
+                    lastuser.endpoint_url('/organizations/new')))
+    eligible_workspaces = []
+    for orgid, title in new_workspaces:
+        if Team.query.filter_by(orgid=orgid).first() is not None:
+            eligible_workspaces.append((orgid, title))
+    if not eligible_workspaces:
+        return render_message(
+            title=u"No organizations available",
+            message=Markup(u"To create a workspace for an organization, you must first allow this app to "
+                u"access the list of teams in your organization. "
+                u'<a href="%s">Do that here</a>.' % lastuser.endpoint_url('/apps/' + lastuser.client_id)))
 
     # Step 3: Ask user to select organization
     form = NewWorkspaceForm()
-    form.workspace.choices = new_workspaces
+    form.workspace.choices = eligible_workspaces
+    if request.method == 'GET':
+        form.workspace.data = new_workspaces[0][0]
     if form.validate_on_submit():
         # Step 4: Make a workspace
         org = [org for org in g.user.organizations_owned() if org['userid'] == form.workspace.data][0]
         workspace = Workspace(name=org['name'], title=org['title'], userid=org['userid'],
-            currency=form.currency.data)
+            currency=form.currency.data, timezone=app.config.get('TIMEZONE', ''))
+        print workspace
         db.session.add(workspace)
         db.session.commit()
-        flash("Created new workspace for %s" % workspace.title, "success")
-        return render_redirect(url_for('workspace_view', workspace=workspace.name), code=303)
-    return render_form(form=form, title="Create a new organization workspace", submit="Create",
+        flash(u"Created a workspace for %s" % workspace.title, "success")
+        return render_redirect(url_for('workspace_edit', workspace=workspace.name), code=303)
+    return render_form(form=form, title="Create a workspace for your organization...", submit="Next",
         formid="workspace_new", cancel_url=url_for('index'), ajax=False)
 
 
+@app.route('/<workspace>/edit', methods=['GET', 'POST'])
+@load_model(Workspace, {'name': 'workspace'}, 'g.workspace', permission='edit')
+def workspace_edit(workspace):
+    form = WorkspaceForm(obj=workspace)
+    form.admin_teams.query = Team.query.filter_by(orgid=workspace.userid).order_by('title')
+    form.review_teams.query = form.admin_teams.query
+    form.access_teams.query = form.admin_teams.query
+    if form.validate_on_submit():
+        form.populate_obj(workspace)
+        db.session.commit()
+        flash(u"Edited workspace settings.", 'success')
+        return render_redirect(url_for('workspace_view', workspace=workspace.name), code=303)
+
+    return render_form(form=form, title=u"Edit workspace settings", submit="Save",
+        formid="workspace_edit", cancel_url=url_for('workspace_view', workspace=workspace.name), ajax=True)
+
+
+@app.route('/<workspace>/delete', methods=['GET', 'POST'])
+@load_model(Workspace, {'name': 'workspace'}, 'g.workspace', permission='delete')
+def workspace_delete(workspace):
+    # Only allow workspaces to be deleted if they have no expense reports
+    if workspace.reports:
+        return render_message(
+            title=u"Cannot delete this workspace",
+            message=u"This workspace cannot be deleted because it contains expense reports.")
+    return render_delete_sqla(workspace, db, title=u"Confirm delete",
+        message=u"Delete workspace '%s'?" % workspace.title,
+        success=u"You have deleted workspace '%s'." % workspace.title,
+        next=url_for('index'))
+
+
 @app.route('/<workspace>/budgets/')
-@load_model(Workspace, {'name': 'workspace'}, 'workspace')
-@requires_workspace_member
+@load_model(Workspace, {'name': 'workspace'}, 'g.workspace', permission='view')
 def budget_list(workspace):
     return render_template('budgets.html')
 
 
 @app.route('/<workspace>/budgets/new', methods=['GET', 'POST'])
-@load_model(Workspace, {'name': 'workspace'}, 'workspace')
-@requires_workspace_owner
+@load_model(Workspace, {'name': 'workspace'}, 'g.workspace', permission='new-budget')
 def budget_new(workspace):
     form = BudgetForm()
     if form.validate_on_submit():
@@ -73,10 +116,10 @@ def budget_new(workspace):
 
 @app.route('/<workspace>/budgets/<budget>/edit', methods=['GET', 'POST'])
 @load_models(
-    (Workspace, {'name': 'workspace'}, 'workspace'),
-    (Budget, {'name': 'budget', 'workspace': 'workspace'}, 'budget')
+    (Workspace, {'name': 'workspace'}, 'g.workspace'),
+    (Budget, {'name': 'budget', 'workspace': 'workspace'}, 'budget'),
+    permission='edit'
     )
-@requires_workspace_owner
 def budget_edit(workspace, budget):
     form = BudgetForm(obj=budget)
     if form.validate_on_submit():
@@ -92,10 +135,10 @@ def budget_edit(workspace, budget):
 
 @app.route('/<workspace>/budgets/<budget>/delete', methods=['GET', 'POST'])
 @load_models(
-    (Workspace, {'name': 'workspace'}, 'workspace'),
-    (Budget, {'name': 'budget', 'workspace': 'workspace'}, 'budget')
+    (Workspace, {'name': 'workspace'}, 'g.workspace'),
+    (Budget, {'name': 'budget', 'workspace': 'workspace'}, 'budget'),
+    permission='delete'
     )
-@requires_workspace_owner
 def budget_delete(workspace, budget):
     return render_delete_sqla(budget, db, title=u"Confirm delete",
         message=u"Delete budget '%s'?" % budget.title,
@@ -104,15 +147,13 @@ def budget_delete(workspace, budget):
 
 
 @app.route('/<workspace>/categories/')
-@load_model(Workspace, {'name': 'workspace'}, 'workspace')
-@requires_workspace_member
+@load_model(Workspace, {'name': 'workspace'}, 'g.workspace', permission='view')
 def category_list(workspace):
     return render_template('categories.html')
 
 
 @app.route('/<workspace>/categories/new', methods=['GET', 'POST'])
-@load_model(Workspace, {'name': 'workspace'}, 'workspace')
-@requires_workspace_owner
+@load_model(Workspace, {'name': 'workspace'}, 'g.workspace', permission='new-category')
 def category_new(workspace):
     form = CategoryForm()
     if form.validate_on_submit():
@@ -130,20 +171,20 @@ def category_new(workspace):
 
 @app.route('/<workspace>/categories/<category>')
 @load_models(
-    (Workspace, {'name': 'workspace'}, 'workspace'),
-    (Category, {'name': 'category', 'workspace': 'workspace'}, 'category')
+    (Workspace, {'name': 'workspace'}, 'g.workspace'),
+    (Category, {'name': 'category', 'workspace': 'workspace'}, 'category'),
+    permission='view'
     )
-@requires_workspace_member
 def category(workspace, category):
     return render_template('category.html', category=category)
 
 
 @app.route('/<workspace>/categories/<category>/edit', methods=['GET', 'POST'])
 @load_models(
-    (Workspace, {'name': 'workspace'}, 'workspace'),
-    (Category, {'name': 'category', 'workspace': 'workspace'}, 'category')
+    (Workspace, {'name': 'workspace'}, 'g.workspace'),
+    (Category, {'name': 'category', 'workspace': 'workspace'}, 'category'),
+    permission='edit'
     )
-@requires_workspace_owner
 def category_edit(workspace, category):
     form = CategoryForm(obj=category)
     if form.validate_on_submit():
@@ -159,10 +200,10 @@ def category_edit(workspace, category):
 
 @app.route('/<workspace>/categories/<category>/delete', methods=['GET', 'POST'])
 @load_models(
-    (Workspace, {'name': 'workspace'}, 'workspace'),
-    (Category, {'name': 'category', 'workspace': 'workspace'}, 'category')
+    (Workspace, {'name': 'workspace'}, 'g.workspace'),
+    (Category, {'name': 'category', 'workspace': 'workspace'}, 'category'),
+    permission='delete'
     )
-@requires_workspace_owner
 def category_delete(workspace, category):
     return render_delete_sqla(category, db, title=u"Confirm delete",
         message=u"Delete category '%s'?" % category.title,

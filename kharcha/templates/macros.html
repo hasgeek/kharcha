@@ -3,7 +3,7 @@
   {%- for c in categories %}
     <li {%- if c==selected %} class="active"{% endif %}><a href="{{ url_for('category', workspace=c.workspace.name, category=c.name) }}"><span class="icon-folder-open"> {{ c.title }}</span></a></li>
   {%- endfor %}
-  {% if 'siteadmin' in permissions -%}
+  {% if 'admin' in permissions -%}
     <li><a href="{{ url_for('category_new', workspace=workspace.name) }}"><span class="icon-plus">Add a category...</span></a></li>
   {%- endif %}
 {% endmacro %}
@@ -13,12 +13,12 @@
   {%- for b in budgets %}
     <li {%- if b==selected %} class="active"{% endif %}><a href="{{ url_for('budget', workspace=b.workspace.name, budget=b.name) }}"><span class="icon-book"> {{ b.title }}</span></a></li>
   {%- endfor %}
-  {% if 'siteadmin' in permissions -%}
+  {% if 'admin' in permissions -%}
     <li><a href="{{ url_for('budget_new', workspace=workspace.name) }}"><span class="icon-plus">Add a budget...</span></a></li>
   {%- endif %}
 {% endmacro %}
 
-{% macro expensetable(report, workflow, editlinks=true) %}
+{% macro expensetable(report, workflow, permissions, editlinks=true) %}
   <table id="expense-table" class="table table-bordered table-condensed">
     <thead>
       <th class="num">#</th>
@@ -36,7 +36,7 @@
           <td data-field="description" data-value="{{ expense.description }}">{{ expense.description }}</td>
           <td data-field="amount" data-value="{{ expense.amount }}" class="num">
             {{ expense.amount|format_currency }}
-            {%- if editlinks and workflow.can_edit() %}
+            {%- if editlinks and 'edit' in permissions %}
               <a href="#" class="link-util expense-edit no-print" data-id="{{ expense.id }}" title="Edit"><i class="icon-pencil"></i></a>
               <a href="{{ url_for('expense_delete', workspace=report.workspace.name, report=report.url_name, expense=expense.id) }}" class="link-util expense-delete no-print" data-id="{{ expense.id }}" title="Delete"><i class="icon-remove"></i></a>
             {%- endif %}

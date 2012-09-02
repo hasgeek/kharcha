@@ -17,6 +17,9 @@ instance/production.py
 .webassets-cache
 nosetests.xml
 .sass-cache
-kharcha/static/js/baseframe-packed.js
-kharcha/static/css/baseframe-packed.css
+baseframe-packed.js
+baseframe-packed.css
+packed.js
+packed.css
 error.log
+.idea

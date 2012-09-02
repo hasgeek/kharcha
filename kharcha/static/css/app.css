@@ -6,15 +6,7 @@
 }
 
 @media print {
-  /*
-  .container {
-      width: 100%;
-      margin: 0;
-      padding: 0;
-      border: 0;
+  .alert {
+    display: none;
   }
-  [class*="span"] {
-      float: left;
-      margin-left: 20px;
-  } */
 }

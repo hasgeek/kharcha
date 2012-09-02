@@ -1,6 +1,13 @@
 {% extends "baseframe.html" %}
 {% from "baseframe/components.html" import flash_messages with context %}
 {% from "macros.html" import category_list, budget_list %}
+{% block logo -%}
+  {%- if g.workspace -%}
+    <div id="logo"><a href="{{ url_for('workspace_view', workspace=g.workspace.name) }}" title="Home">{{ g.workspace.title }}</a></div>
+  {%- else -%}
+    <div id="logo"><a href="{{ url_for('index') }}" title="Home">{{ config['SITE_TITLE'] }}</a></div>
+  {%- endif -%}
+{%- endblock %}
 {% block messages %}{# Don't use baseframe's messages #}{% endblock %}
 {% block baseheadline %}{# Don't use baseframe's headline #}{% endblock %}
 {% block basecontent %}
@@ -29,15 +36,15 @@
           <li><a href="{{ url_for('receipt_new', workspace=g.workspace.name) }}"><span class="icon-camera">Upload a receipt...</span></a></li>
           <li {%- if receipts %} class="active"{% endif %}><a href="{{ url_for('settlements', workspace=g.workspace.name) }}"><span class="icon-money {%- if receipts %} icon-whiet {%- endif %}">Settlements</span></a></li>#}
           {% if budget %}
-            {{ budget_list(workspace=g.workspace, budgets=budgets, selected=budget, permissions=permissions) }}
+            {{ budget_list(workspace=g.workspace, budgets=budgets, selected=budget, permissions=g.permissions) }}
           {% else %}
-            {{ budget_list(workspace=g.workspace, budgets=budgets, permissions=permissions) }}
+            {{ budget_list(workspace=g.workspace, budgets=budgets, permissions=g.permissions) }}
           {% endif %}
-          {% if g.user and g.workspace.userid in g.user.organizations_owned_ids() %}
+          {% if 'admin' in g.permissions %}
             {% if category %}
-              {{ category_list(workspace=g.workspace, categories=categories, selected=category, permissions=permissions) }}
+              {{ category_list(workspace=g.workspace, categories=categories, selected=category, permissions=g.permissions) }}
             {% else %}        
-              {{ category_list(workspace=g.workspace, categories=categories, permissions=permissions) }}
+              {{ category_list(workspace=g.workspace, categories=categories, permissions=g.permissions) }}
             {% endif %}
           {% endif %}
         {% endif %}

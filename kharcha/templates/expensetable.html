@@ -1,4 +1,4 @@
 {% from "macros.html" import expensetable, expense_table_script %}
 {# This template is inserted into an existing page. #}
-{{ expensetable(report, workflow) }}
+{{ expensetable(report, workflow, permissions=g.permissions) }}
 {{ expense_table_script() }}

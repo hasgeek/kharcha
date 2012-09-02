@@ -12,7 +12,7 @@
       </div>
       {{ budget.description|safe }}
     </div>
-    {% if 'siteadmin' in permissions -%}
+    {% if 'admin' in g.permissions -%}
       <div class="span3 print-span4">
         <ul class="well nav nav-list">
           <li class="no-print"><a href="{{ url_for('budget_edit', workspace=g.workspace.name, budget=budget.name) }}"><span class="icon-pencil">Edit details...</span></a></li>

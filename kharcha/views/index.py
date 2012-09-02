@@ -1,23 +1,28 @@
 # -*- coding: utf-8 -*-
 
-from pytz import utc, timezone
+from pytz import utc
 from flask import render_template, g
 from coaster.views import load_model
 from kharcha import app
 from kharcha.models import Category, Budget, Workspace
 from kharcha.views.workflows import ExpenseReportWorkflow
-from kharcha.views.login import lastuser, requires_workspace_member
-
-tz = timezone(app.config['TIMEZONE'])
 
 
 @app.template_filter('shortdate')
 def shortdate(date):
+    if hasattr(g, 'workspace'):
+        tz = g.workspace.tz
+    else:
+        tz = app.config['tz']
     return utc.localize(date).astimezone(tz).strftime('%b %e')
 
 
 @app.template_filter('longdate')
 def longdate(date):
+    if hasattr(g, 'workspace'):
+        tz = g.workspace.tz
+    else:
+        tz = app.config['tz']
     return utc.localize(date).astimezone(tz).strftime('%B %e, %Y')
 
 
@@ -35,7 +40,6 @@ def sidebarvars():
             'categories': Category.query.filter_by(workspace=g.workspace).order_by('title').all(),
             'budgets': Budget.query.filter_by(workspace=g.workspace).order_by('title').all(),
             'report_states': ExpenseReportWorkflow.states(),
-            'permissions': lastuser.permissions(),
         }
     else:
         return {
@@ -49,7 +53,6 @@ def index():
 
 
 @app.route('/<workspace>/')
-@load_model(Workspace, {'name': 'workspace'}, 'workspace')
-@requires_workspace_member
+@load_model(Workspace, {'name': 'workspace'}, 'g.workspace', permission='view')
 def workspace_view(workspace):
     return render_template('workspace.html', workspace=workspace)

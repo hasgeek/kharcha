@@ -2,7 +2,6 @@
 
 from decimal import Decimal
 from datetime import datetime
-from flask import url_for
 from kharcha.models import db, BaseMixin, BaseScopedNameMixin, BaseScopedIdNameMixin
 from kharcha.models.user import User
 from kharcha.models.workspace import Workspace
@@ -97,6 +96,32 @@ class ExpenseReport(BaseScopedIdNameMixin, db.Model):
             if expense.seq != i + 1:
                 expense.seq = i + 1
 
+    def permissions(self, user, inherited=None):
+        perms = super(ExpenseReport, self).permissions(user, inherited)
+
+        workflow = self.workflow()
+        perms.discard('view')
+        perms.discard('edit')
+        perms.discard('delete')
+        perms.discard('new-expense')
+
+        if 'review' in perms or 'admin' in perms:
+            if not workflow.draft():
+                perms.add('view')
+
+        if self.user == user:
+            perms.add('owner')
+            perms.add('view')
+            if workflow.draft():
+                perms.add('delete')
+            if workflow.editable():
+                perms.add('edit')
+                perms.add('new-expense')
+            if workflow.review():
+                perms.add('withdraw')
+
+        return perms
+
 
 class Expense(BaseMixin, db.Model):
     """
@@ -119,3 +144,11 @@ class Expense(BaseMixin, db.Model):
     #: Report in which this expense is recorded
     report = db.relationship(ExpenseReport, primaryjoin=report_id == ExpenseReport.id,
         backref=db.backref('expenses', cascade='all, delete-orphan', order_by=seq))
+
+    def permissions(self, user, inherited=None):
+        perms = super(Expense, self).permissions(user, inherited)
+        # Expenses can be deleted only if the report can be edited
+        perms.discard('delete')
+        if 'edit' in perms:
+            perms.add('delete')
+        return perms
