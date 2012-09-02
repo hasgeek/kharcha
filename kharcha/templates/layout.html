@@ -25,9 +25,9 @@
             <li class="active"><a href="{{ url_for('report', workspace=g.workspace.name, report=report.url_name) }}"><span class="icon-file">Report: {{ report.title }}</span></a></li>
           {%- endif %}
           <li {%- if newreport %} class="active" {%- endif %}><a href="{{ url_for('report_new', workspace=g.workspace.name) }}"><span class="icon-pencil">File a new report...</span></a></li>
-          <li {%- if receipts %} class="active"{% endif %}><a href="{{ url_for('receipts', workspace=g.workspace.name) }}"><span class="icon-picture">Your receipts</span></a></li>
+          {#<li {%- if receipts %} class="active"{% endif %}><a href="{{ url_for('receipts', workspace=g.workspace.name) }}"><span class="icon-picture">Your receipts</span></a></li>
           <li><a href="{{ url_for('receipt_new', workspace=g.workspace.name) }}"><span class="icon-camera">Upload a receipt...</span></a></li>
-          <li {%- if receipts %} class="active"{% endif %}><a href="{{ url_for('settlements', workspace=g.workspace.name) }}"><span class="icon-money {%- if receipts %} icon-whiet {%- endif %}">Settlements</span></a></li>
+          <li {%- if receipts %} class="active"{% endif %}><a href="{{ url_for('settlements', workspace=g.workspace.name) }}"><span class="icon-money {%- if receipts %} icon-whiet {%- endif %}">Settlements</span></a></li>#}
           {% if budget %}
             {{ budget_list(workspace=g.workspace, budgets=budgets, selected=budget, permissions=permissions) }}
           {% else %}
