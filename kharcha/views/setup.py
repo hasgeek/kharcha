@@ -51,7 +51,6 @@ def workspace_new():
         org = [org for org in g.user.organizations_owned() if org['userid'] == form.workspace.data][0]
         workspace = Workspace(name=org['name'], title=org['title'], userid=org['userid'],
             currency=form.currency.data, timezone=app.config.get('TIMEZONE', ''))
-        print workspace
         db.session.add(workspace)
         db.session.commit()
         flash(u"Created a workspace for %s" % workspace.title, "success")
