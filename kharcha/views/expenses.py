@@ -274,7 +274,7 @@ def report_accept(workspace, report):
     wf.accept(reviewer=g.user)
     db.session.commit()
     flash(u"Expense report '%s' has been accepted." % report.title, 'success')
-    return redirect(url_for('reports', workspace=workspace.name), code=303)
+    return redirect(url_for('reports_all', workspace=workspace.name), code=303)
 
 
 @app.route('/<workspace>/reports/<report>/return_for_review', methods=['POST'])
@@ -289,7 +289,7 @@ def report_return(workspace, report):
     db.session.commit()
     flash(u"Expense report '%s' has been returned for review." % report.title,
         'success')
-    return redirect(url_for('reports', workspace=workspace.name), code=303)
+    return redirect(url_for('reports_all', workspace=workspace.name), code=303)
 
 
 @app.route('/<workspace>/reports/<report>/reject', methods=['POST'])
@@ -303,7 +303,7 @@ def report_reject(workspace, report):
     wf.reject(reviewer=g.user, notes=u'')  # TODO: Form for notes
     db.session.commit()
     flash(u"Expense report '%s' has been rejected." % report.title, 'success')
-    return redirect(url_for('reports', workspace=workspace.name), code=303)
+    return redirect(url_for('reports_all', workspace=workspace.name), code=303)
 
 
 @app.route('/<workspace>/reports/<report>/withdraw', methods=['POST'])
@@ -331,4 +331,4 @@ def report_close(workspace, report):
     wf.close()
     db.session.commit()
     flash(u"Expense report '%s' has been closed." % report.title, 'success')
-    return redirect(url_for('reports', workspace=workspace.name), code=303)
+    return redirect(url_for('reports_all', workspace=workspace.name), code=303)
