@@ -91,15 +91,17 @@
         target: '#newexpense',
         replaceTarget: true,
       });
-      activate_chosen("#expense-category");
+      $("#expense-category").select2();
       $("#expense-cancel").click(function(e) {
         $("#newexpense").clearForm();
         $("#expense-id").val("");
+        $("#expense-category").val("");
         $("#expense-add").val("Add")
         $("tr.alert-info").removeClass('alert-info');
         $("#newexpense .alert").remove();
         $("#newexpense .control-group.error").removeClass("error");
-        $("#expense-category").trigger("liszt:updated")
+        $("#expense-category").trigger("liszt:updated");
+        $("#expense-category").trigger("change");
         return false;
       });
       $("#expense-description, #expense-amount").keydown(function(e) {
@@ -122,7 +124,8 @@
         $("#expense-id").val($(this).attr('data-id'));;
         $("#expense-date").val(row.find('[data-field="date"]').attr('data-value'));
         $("#expense-category").val(row.find('[data-field="category"]').attr('data-value'));
-        $("#expense-category").trigger("liszt:updated")
+        $("#expense-category").trigger("liszt:updated");
+        $("#expense-category").trigger("change");
         $("#expense-description").val(row.find('[data-field="description"]').attr('data-value'));
         $("#expense-amount").val(row.find('[data-field="amount"]').attr('data-value'));
         $("#expense-add").val("Save");
