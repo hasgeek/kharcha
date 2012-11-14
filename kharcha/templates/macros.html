@@ -91,7 +91,7 @@
         target: '#newexpense',
         replaceTarget: true,
       });
-      $("#expense-category").select2();
+      activate_chosen("#expense-category");
       $("#expense-cancel").click(function(e) {
         $("#newexpense").clearForm();
         $("#expense-id").val("");
