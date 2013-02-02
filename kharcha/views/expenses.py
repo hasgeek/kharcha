@@ -59,7 +59,7 @@ def budget(workspace, budget):
 def reports(workspace):
     # Sort reports by status
     reports = ExpenseReportWorkflow.sort_documents(available_reports(workspace).all())
-    return render_template('reports.html', reports=reports, reportspage=True)
+    return render_template('reports.html', reports=reports)
 
 
 @app.route('/<workspace>/reports/all')
@@ -67,7 +67,7 @@ def reports(workspace):
 def reports_all(workspace):
     # Sort reports by status
     reports = ExpenseReportWorkflow.sort_documents(available_reports(workspace, all=True).all())
-    return render_template('reports.html', reports=reports, allreportspage=True)
+    return render_template('reports.html', reports=reports)
 
 
 def report_edit_internal(workspace, form, report=None, workflow=None):
@@ -81,12 +81,8 @@ def report_edit_internal(workspace, form, report=None, workflow=None):
         db.session.commit()
         return redirect(url_for('report', workspace=workspace.name, report=report.url_name), code=303)
     # TODO: Ajax handling here (but then again, is it required?)
-    if form and report is None:
-        newreport = True
-    else:
-        newreport = False
     return render_template('reportnew.html',
-        workspace=workspace, form=form, report=report, workflow=workflow, newreport=newreport)
+        workspace=workspace, form=form, report=report, workflow=workflow)
 
 
 @app.route('/<workspace>/reports/new', methods=['GET', 'POST'])

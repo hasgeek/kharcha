@@ -23,28 +23,28 @@
         {% for space in workspaces %}
           <li><a href="{{ url_for('workspace_view', workspace=space.name) }}"><span class="icon-group">{{ space.title }}{% if g.workspace==space %} <i class="icon-ok"></i>{% endif %}</span></a></li>
         {% endfor %}
-        <li><a href="{{ url_for('workspace_new') }}"><span class="icon-plus">New workspace...</span></a></li>
+        <li {%- if request.endpoint == 'workspace_new' %} class="active" {%- endif %}><a href="{{ url_for('workspace_new') }}"><span class="icon-plus">New workspace...</span></a></li>
         {% if g.workspace %}
           <li class="nav-header">Expense Reports</li>
-          <li {%- if reportspage %} class="active"{% endif %}><a href="{{ url_for('reports', workspace=g.workspace.name) }}"><span class="icon-inbox">Your reports</span></a></li>
-          <li {%- if allreportspage %} class="active"{% endif %}><a href="{{ url_for('reports_all', workspace=g.workspace.name) }}"><span class="icon-inbox">All reports</span></a></li>
-          {%- if report %}
+          <li {%- if request.endpoint == 'reports' %} class="active"{% endif %}><a href="{{ url_for('reports', workspace=g.workspace.name) }}"><span class="icon-inbox">Your reports</span></a></li>
+          <li {%- if request.endpoint == 'reports_all' %} class="active"{% endif %}><a href="{{ url_for('reports_all', workspace=g.workspace.name) }}"><span class="icon-inbox">All reports</span></a></li>
+          {%- if request.endpoint == 'report' and report %}
             <li class="active"><a href="{{ url_for('report', workspace=g.workspace.name, report=report.url_name) }}"><span class="icon-file">Report: {{ report.title }}</span></a></li>
           {%- endif %}
-          <li {%- if newreport %} class="active" {%- endif %}><a href="{{ url_for('report_new', workspace=g.workspace.name) }}"><span class="icon-pencil">File a new report...</span></a></li>
+          <li {%- if request.endpoint == 'report_new' %} class="active" {%- endif %}><a href="{{ url_for('report_new', workspace=g.workspace.name) }}"><span class="icon-pencil">File a new report...</span></a></li>
           {#<li {%- if receipts %} class="active"{% endif %}><a href="{{ url_for('receipts', workspace=g.workspace.name) }}"><span class="icon-picture">Your receipts</span></a></li>
           <li><a href="{{ url_for('receipt_new', workspace=g.workspace.name) }}"><span class="icon-camera">Upload a receipt...</span></a></li>
           <li {%- if receipts %} class="active"{% endif %}><a href="{{ url_for('settlements', workspace=g.workspace.name) }}"><span class="icon-money {%- if receipts %} icon-whiet {%- endif %}">Settlements</span></a></li>#}
-          {% if budget %}
-            {{ budget_list(workspace=g.workspace, budgets=budgets, selected=budget, permissions=g.permissions) }}
+          {% if request.endpoint == 'budget' %}
+            {{ budget_list(workspace=g.workspace, budgets=budgets, selected=budget, permissions=g.permissions, request=request) }}
           {% else %}
-            {{ budget_list(workspace=g.workspace, budgets=budgets, permissions=g.permissions) }}
+            {{ budget_list(workspace=g.workspace, budgets=budgets, permissions=g.permissions, request=request) }}
           {% endif %}
           {% if 'admin' in g.permissions %}
-            {% if category %}
-              {{ category_list(workspace=g.workspace, categories=categories, selected=category, permissions=g.permissions) }}
+            {% if request.endpoint == 'category' %}
+              {{ category_list(workspace=g.workspace, categories=categories, selected=category, permissions=g.permissions, request=request) }}
             {% else %}        
-              {{ category_list(workspace=g.workspace, categories=categories, permissions=g.permissions) }}
+              {{ category_list(workspace=g.workspace, categories=categories, permissions=g.permissions, request=request) }}
             {% endif %}
           {% endif %}
         {% endif %}
