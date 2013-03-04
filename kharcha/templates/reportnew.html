@@ -29,12 +29,12 @@
         <div class="row section">
           <div class="span3">
             {{ form.currency.label }}
-            <span class="control-group{% if form.currency.errors %} error{% endif %}">{{ form.currency }}</span>
+            <span class="control-group{% if form.currency.errors %} error{% endif %}">{{ form.currency(style='width: 100%') }}</span>
             <p class="help-block">{{ form.currency.description }}</p>
           </div>
           <div class="span3">
             {{ form.budget.label }}
-            <span class="control-group{% if form.budget.errors %} error{% endif %}">{{ form.budget }}</span>
+            <span class="control-group{% if form.budget.errors %} error{% endif %}">{{ form.budget(style='width: 100%') }}</span>
             <p class="help-block">{{ form.budget.description }}</p>
           </div>
         </div>
