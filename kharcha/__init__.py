@@ -22,7 +22,7 @@ assets['kharcha.css'][version] = 'css/app.css'
 # Configure the app
 def init_for(env):
     coaster.app.init_app(app, env)
-    baseframe.init_app(app, requires=['baseframe', 'expander', 'kharcha'])
+    baseframe.init_app(app, requires=['baseframe', 'jquery.expander', 'kharcha'])
     app.config.get('NETWORKBAR_LINKS', []).append({
         'name': u'kharcha',
         'title': u'Expenses',
