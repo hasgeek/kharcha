@@ -4,32 +4,30 @@
 
 from pytz import timezone
 from flask import Flask
-from flask.ext.assets import Environment, Bundle
 from flask.ext.lastuser import Lastuser
 from flask.ext.lastuser.sqlalchemy import UserManager
-from baseframe import baseframe, baseframe_js, baseframe_css, expander_js
+from baseframe import baseframe, assets, Version
 import coaster.app
+from ._version import __version__
 
+version = Version(__version__)
 app = Flask(__name__, instance_relative_config=True)
 lastuser = Lastuser()
 
-import kharcha.models
-import kharcha.views
+from . import models, views
 
-app.register_blueprint(baseframe)
-
-assets = Environment(app)
-js = Bundle(baseframe_js, expander_js,
-    filters='jsmin', output='js/packed.js')
-css = Bundle(baseframe_css, 'css/app.css',
-    filters='cssmin', output='css/packed.css')
-assets.register('js_all', js)
-assets.register('css_all', css)
+assets['kharcha.css'][version] = 'css/app.css'
 
 
 # Configure the app
 def init_for(env):
     coaster.app.init_app(app, env)
+    baseframe.init_app(app, requires=['baseframe', 'expander', 'kharcha'])
+    app.config.get('NETWORKBAR_LINKS', []).append({
+        'name': u'kharcha',
+        'title': u'Expenses',
+        'url': None
+        })
     lastuser.init_app(app)
-    lastuser.init_usermanager(UserManager(kharcha.models.db, kharcha.models.User, kharcha.models.Team))
+    lastuser.init_usermanager(UserManager(models.db, models.User, models.Team))
     app.config['tz'] = timezone(app.config['TIMEZONE'])
