@@ -1,0 +1,20 @@
+// Insert app styles here
+@import compass
+
+#logo
+  @include replace-text-with-dimensions('logo.png')
+
+@media only screen and (-webkit-min-device-pixel-ratio: 1.5)
+  #logo
+    background-image: image-url('logo@2x.png')
+    -webkit-background-size: image-width('logo.png') image-height('logo.png')
+
+#print-signature
+  border-top: 1px solid #ddd
+  margin-top: 72pt
+  padding-top: 0.5em
+  text-align: right
+
+@media print
+  .alert
+    display: none
