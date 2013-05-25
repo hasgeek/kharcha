@@ -35,11 +35,11 @@
           <td data-field="category" data-value="{{ expense.category.id }}">{{ expense.category.title }}</td>
           <td data-field="description" data-value="{{ expense.description }}">{{ expense.description }}</td>
           <td data-field="amount" data-value="{{ expense.amount }}" class="num">
-            {{ expense.amount|format_currency }}
             {%- if editlinks and 'edit' in permissions %}
               <a href="#" class="link-util expense-edit no-print" data-id="{{ expense.id }}" title="Edit"><i class="icon-pencil"></i></a>
               <a href="{{ url_for('expense_delete', workspace=report.workspace.name, report=report.url_name, expense=expense.id) }}" class="link-util expense-delete no-print" data-id="{{ expense.id }}" title="Delete"><i class="icon-remove"></i></a>
             {%- endif %}
+            {{ expense.amount|format_currency }}
           </td>
         </tr>
       {% else %}
@@ -96,7 +96,7 @@
         $("#newexpense").clearForm();
         $("#expense-id").val("");
         $("#expense-category").val("");
-        $("#expense-add").val("Add")
+        $("#expense-add").html("Add")
         $("tr.alert-info").removeClass('alert-info');
         $("#newexpense .alert").remove();
         $("#newexpense .control-group.error").removeClass("error");
@@ -128,7 +128,7 @@
         $("#expense-category").trigger("change");
         $("#expense-description").val(row.find('[data-field="description"]').attr('data-value'));
         $("#expense-amount").val(row.find('[data-field="amount"]').attr('data-value'));
-        $("#expense-add").val("Save");
+        $("#expense-add").html("Save");
         $("#expense-date").focus();
         return false;
       });
