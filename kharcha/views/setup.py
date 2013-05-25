@@ -60,6 +60,7 @@ def workspace_new():
 
 
 @app.route('/<workspace>/edit', methods=['GET', 'POST'])
+@lastuser.requires_login
 @load_model(Workspace, {'name': 'workspace'}, 'g.workspace', permission='edit')
 def workspace_edit(workspace):
     form = WorkspaceForm(obj=workspace)
@@ -77,6 +78,7 @@ def workspace_edit(workspace):
 
 
 @app.route('/<workspace>/delete', methods=['GET', 'POST'])
+@lastuser.requires_login
 @load_model(Workspace, {'name': 'workspace'}, 'g.workspace', permission='delete')
 def workspace_delete(workspace):
     # Only allow workspaces to be deleted if they have no expense reports
@@ -91,12 +93,14 @@ def workspace_delete(workspace):
 
 
 @app.route('/<workspace>/budgets/')
+@lastuser.requires_login
 @load_model(Workspace, {'name': 'workspace'}, 'g.workspace', permission='view')
 def budget_list(workspace):
     return render_template('budgets.html')
 
 
 @app.route('/<workspace>/budgets/new', methods=['GET', 'POST'])
+@lastuser.requires_login
 @load_model(Workspace, {'name': 'workspace'}, 'g.workspace', permission='new-budget')
 def budget_new(workspace):
     form = BudgetForm()
@@ -114,6 +118,7 @@ def budget_new(workspace):
 
 
 @app.route('/<workspace>/budgets/<budget>/edit', methods=['GET', 'POST'])
+@lastuser.requires_login
 @load_models(
     (Workspace, {'name': 'workspace'}, 'g.workspace'),
     (Budget, {'name': 'budget', 'workspace': 'workspace'}, 'budget'),
@@ -133,6 +138,7 @@ def budget_edit(workspace, budget):
 
 
 @app.route('/<workspace>/budgets/<budget>/delete', methods=['GET', 'POST'])
+@lastuser.requires_login
 @load_models(
     (Workspace, {'name': 'workspace'}, 'g.workspace'),
     (Budget, {'name': 'budget', 'workspace': 'workspace'}, 'budget'),
@@ -146,12 +152,14 @@ def budget_delete(workspace, budget):
 
 
 @app.route('/<workspace>/categories/')
+@lastuser.requires_login
 @load_model(Workspace, {'name': 'workspace'}, 'g.workspace', permission='view')
 def category_list(workspace):
     return render_template('categories.html')
 
 
 @app.route('/<workspace>/categories/new', methods=['GET', 'POST'])
+@lastuser.requires_login
 @load_model(Workspace, {'name': 'workspace'}, 'g.workspace', permission='new-category')
 def category_new(workspace):
     form = CategoryForm()
@@ -169,6 +177,7 @@ def category_new(workspace):
 
 
 @app.route('/<workspace>/categories/<category>')
+@lastuser.requires_login
 @load_models(
     (Workspace, {'name': 'workspace'}, 'g.workspace'),
     (Category, {'name': 'category', 'workspace': 'workspace'}, 'category'),
@@ -179,6 +188,7 @@ def category(workspace, category):
 
 
 @app.route('/<workspace>/categories/<category>/edit', methods=['GET', 'POST'])
+@lastuser.requires_login
 @load_models(
     (Workspace, {'name': 'workspace'}, 'g.workspace'),
     (Category, {'name': 'category', 'workspace': 'workspace'}, 'category'),
@@ -198,6 +208,7 @@ def category_edit(workspace, category):
 
 
 @app.route('/<workspace>/categories/<category>/delete', methods=['GET', 'POST'])
+@lastuser.requires_login
 @load_models(
     (Workspace, {'name': 'workspace'}, 'g.workspace'),
     (Category, {'name': 'category', 'workspace': 'workspace'}, 'category'),

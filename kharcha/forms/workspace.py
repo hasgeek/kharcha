@@ -12,9 +12,9 @@ class NewWorkspaceForm(Form):
     Create a workspace.
     """
     workspace = wtf.RadioField(u"Organization", validators=[wtf.Required("Select an organization")],
-        description=u"Select the organization you’d like to create a workspace for.")
+        description=u"Select the organization you’d like to create a workspace for")
     currency = wtf.SelectField(u"Currency", validators=[wtf.Required("Select a currency")], choices=CURRENCIES,
-        description=u"The standard currency for your organization’s accounts.")
+        description=u"The standard currency for your organization’s accounts. This cannot be changed later")
 
 
 class WorkspaceForm(Form):

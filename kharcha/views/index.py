@@ -3,7 +3,7 @@
 from pytz import utc
 from flask import render_template, g
 from coaster.views import load_model
-from kharcha import app
+from kharcha import app, lastuser
 from kharcha.models import Category, Budget, Workspace
 from kharcha.views.workflows import ExpenseReportWorkflow
 
@@ -53,6 +53,7 @@ def index():
 
 
 @app.route('/<workspace>/')
+@lastuser.requires_login
 @load_model(Workspace, {'name': 'workspace'}, 'g.workspace', permission='view')
 def workspace_view(workspace):
     return render_template('workspace.html', workspace=workspace)

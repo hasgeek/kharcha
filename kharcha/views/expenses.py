@@ -12,7 +12,7 @@ from coaster import format_currency as coaster_format_currency
 from coaster.views import load_model, load_models
 from baseframe.forms import render_form, render_redirect, render_delete_sqla, ConfirmDeleteForm
 
-from kharcha import app
+from kharcha import app, lastuser
 from kharcha.forms import ExpenseReportForm, ExpenseForm
 from kharcha.views.workflows import ExpenseReportWorkflow
 from kharcha.models import db, Workspace, ExpenseReport, Expense, Budget
@@ -39,6 +39,7 @@ def available_reports(workspace, user=None, all=False):
 
 
 @app.route('/<workspace>/budgets/<budget>')
+@lastuser.requires_login
 @load_models(
     (Workspace, {'name': 'workspace'}, 'g.workspace'),
     (Budget, {'name': 'budget', 'workspace': 'workspace'}, 'budget'),
@@ -55,6 +56,7 @@ def budget(workspace, budget):
 
 
 @app.route('/<workspace>/reports/')
+@lastuser.requires_login
 @load_model(Workspace, {'name': 'workspace'}, 'g.workspace', permission='view')
 def reports(workspace):
     # Sort reports by status
@@ -63,6 +65,7 @@ def reports(workspace):
 
 
 @app.route('/<workspace>/reports/all')
+@lastuser.requires_login
 @load_model(Workspace, {'name': 'workspace'}, 'g.workspace', permission='view')
 def reports_all(workspace):
     # Sort reports by status
@@ -86,6 +89,7 @@ def report_edit_internal(workspace, form, report=None, workflow=None):
 
 
 @app.route('/<workspace>/reports/new', methods=['GET', 'POST'])
+@lastuser.requires_login
 @load_model(Workspace, {'name': 'workspace'}, 'g.workspace', permission='new-report')
 def report_new(workspace):
     form = ExpenseReportForm(prefix='report')
@@ -93,6 +97,7 @@ def report_new(workspace):
 
 
 @app.route('/<workspace>/reports/<report>', methods=['GET', 'POST'])
+@lastuser.requires_login
 @load_models(
     (Workspace, {'name': 'workspace'}, 'g.workspace'),
     (ExpenseReport, {'url_name': 'report', 'workspace': 'workspace'}, 'report'),
@@ -145,6 +150,7 @@ def report_expensetable(workspace, report):
 
 
 @app.route('/<workspace>/reports/<report>/csv')
+@lastuser.requires_login
 @load_models(
     (Workspace, {'name': 'workspace'}, 'g.workspace'),
     (ExpenseReport, {'url_name': 'report', 'workspace': 'workspace'}, 'report'),
@@ -168,6 +174,7 @@ def report_csv(workspace, report):
 
 
 @app.route('/<workspace>/reports/<report>/edit', methods=['GET', 'POST'])
+@lastuser.requires_login
 @load_models(
     (Workspace, {'name': 'workspace'}, 'g.workspace'),
     (ExpenseReport, {'url_name': 'report', 'workspace': 'workspace'}, 'report'),
@@ -190,6 +197,7 @@ def report_edit(workspace, report):
 
 
 @app.route('/<workspace>/reports/<report>/delete', methods=['GET', 'POST'])
+@lastuser.requires_login
 @load_models(
     (Workspace, {'name': 'workspace'}, 'g.workspace'),
     (ExpenseReport, {'url_name': 'report', 'workspace': 'workspace'}, 'report'),
@@ -204,6 +212,7 @@ def report_delete(workspace, report):
 
 
 @app.route('/<workspace>/reports/<report>/<expense>/delete', methods=['GET', 'POST'])
+@lastuser.requires_login
 @load_models(
     (Workspace, {'name': 'workspace'}, 'g.workspace'),
     (ExpenseReport, {'url_name': 'report', 'workspace': 'workspace'}, 'report'),
@@ -226,6 +235,7 @@ def expense_delete(workspace, report, expense):
 
 
 @app.route('/<workspace>/reports/<report>/submit', methods=['POST'])
+@lastuser.requires_login
 @load_models(
     (Workspace, {'name': 'workspace'}, 'g.workspace'),
     (ExpenseReport, {'url_name': 'report', 'workspace': 'workspace'}, 'report'),
@@ -243,6 +253,7 @@ def report_submit(workspace, report):
 
 
 @app.route('/<workspace>/reports/<report>/resubmit', methods=['POST'])
+@lastuser.requires_login
 @load_models(
     (Workspace, {'name': 'workspace'}, 'g.workspace'),
     (ExpenseReport, {'url_name': 'report', 'workspace': 'workspace'}, 'report'),
@@ -260,6 +271,7 @@ def report_resubmit(workspace, report):
 
 
 @app.route('/<workspace>/reports/<report>/accept', methods=['POST'])
+@lastuser.requires_login
 @load_models(
     (Workspace, {'name': 'workspace'}, 'g.workspace'),
     (ExpenseReport, {'url_name': 'report', 'workspace': 'workspace'}, 'report'),
@@ -274,6 +286,7 @@ def report_accept(workspace, report):
 
 
 @app.route('/<workspace>/reports/<report>/return_for_review', methods=['POST'])
+@lastuser.requires_login
 @load_models(
     (Workspace, {'name': 'workspace'}, 'g.workspace'),
     (ExpenseReport, {'url_name': 'report', 'workspace': 'workspace'}, 'report'),
@@ -289,6 +302,7 @@ def report_return(workspace, report):
 
 
 @app.route('/<workspace>/reports/<report>/reject', methods=['POST'])
+@lastuser.requires_login
 @load_models(
     (Workspace, {'name': 'workspace'}, 'g.workspace'),
     (ExpenseReport, {'url_name': 'report', 'workspace': 'workspace'}, 'report'),
@@ -303,6 +317,7 @@ def report_reject(workspace, report):
 
 
 @app.route('/<workspace>/reports/<report>/withdraw', methods=['POST'])
+@lastuser.requires_login
 @load_models(
     (Workspace, {'name': 'workspace'}, 'g.workspace'),
     (ExpenseReport, {'url_name': 'report', 'workspace': 'workspace'}, 'report'),
@@ -317,6 +332,7 @@ def report_withdraw(workspace, report):
 
 
 @app.route('/<workspace>/reports/<report>/close', methods=['POST'])
+@lastuser.requires_login
 @load_models(
     (Workspace, {'name': 'workspace'}, 'g.workspace'),
     (ExpenseReport, {'url_name': 'report', 'workspace': 'workspace'}, 'report'),
