@@ -33,7 +33,12 @@ def sidebarvars():
         org_ids = g.user.organizations_memberof_ids()
     else:
         org_ids = []
-    workspaces = Workspace.query.filter(Workspace.userid.in_(org_ids)).order_by('title').all()
+
+    if org_ids:
+        workspaces = Workspace.query.filter(Workspace.userid.in_(org_ids)).order_by('title').all()
+    else:
+        workspaces = []
+
     if hasattr(g, 'workspace'):
         return {
             'workspaces': workspaces,

@@ -2,6 +2,7 @@
 
 from pytz import timezone
 from werkzeug import cached_property
+from flask.ext.lastuser.sqlalchemy import ProfileMixin
 from kharcha.models import db, BaseNameMixin, Team
 
 __all__ = ['Workspace']
@@ -23,7 +24,7 @@ workspace_access_teams = db.Table('workspace_access_teams', db.Model.metadata,
     )
 
 
-class Workspace(BaseNameMixin, db.Model):
+class Workspace(ProfileMixin, BaseNameMixin, db.Model):
     """
     Workspaces contain expense reports, budgets and categories. Workspaces
     correspond to organizations in LastUser.

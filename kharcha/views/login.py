@@ -23,13 +23,7 @@ def logout():
 @app.route('/login/redirect')
 @lastuser.auth_handler
 def lastuserauth():
-    for org in g.user.organizations_memberof():
-        workspace = Workspace.query.filter_by(userid=org['userid']).first()
-        if workspace:
-            if workspace.name != org['name']:
-                workspace.name = org['name']
-            if workspace.title != org['title']:
-                workspace.title = org['title']
+    Workspace.update_from_user(g.user, db.session, make_user_profiles=False, make_org_profiles=False)
     db.session.commit()
     return redirect(get_next_url())
 
