@@ -28,6 +28,13 @@ def lastuserauth():
     return redirect(get_next_url())
 
 
+@app.route('/login/notify', methods=['POST'])
+@lastuser.notification_handler
+def lastusernotify(user, changes, **kwargs):
+    Workspace.update_from_user(user, db.session, make_user_profiles=False, make_org_profiles=False)
+    db.session.commit()
+
+
 @lastuser.auth_error_handler
 def lastuser_error(error, error_description=None, error_uri=None):
     if error == 'access_denied':
