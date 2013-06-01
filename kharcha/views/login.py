@@ -30,7 +30,7 @@ def lastuserauth():
 
 @app.route('/login/notify', methods=['POST'])
 @lastuser.notification_handler
-def lastusernotify(user, changes, **kwargs):
+def lastusernotify(user):
     Workspace.update_from_user(user, db.session, make_user_profiles=False, make_org_profiles=False)
     db.session.commit()
 
