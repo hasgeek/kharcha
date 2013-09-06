@@ -3,7 +3,8 @@
 # Expense forms
 from decimal import Decimal
 from flask import g
-import flask.ext.wtf as wtf
+import wtforms
+from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from baseframe.forms import Form, RichTextField
 from coaster import simplify_text
 from kharcha.models import Category, Budget, Expense
@@ -205,7 +206,7 @@ class BudgetForm(Form):
     """
     Create or edit a budget.
     """
-    title = wtf.TextField(u"Budget title", validators=[wtf.Required()],
+    title = wtforms.TextField(u"Budget title", validators=[wtforms.validators.Required()],
         description=u"The name of your project or other budget source")
     description = RichTextField(u"Description",
         description=u"Description of the budget")
@@ -217,14 +218,14 @@ class BudgetForm(Form):
         existing = set([simplify_text(b.title) for b in
             Budget.query.filter_by(workspace=g.workspace).all() if b != self.edit_obj])
         if simplify_text(field.data) in existing:
-            raise wtf.ValidationError("You have an existing budget with the same name")
+            raise wtforms.ValidationError("You have an existing budget with the same name")
 
 
 class CategoryForm(Form):
     """
     Create or edit a category.
     """
-    title = wtf.TextField(u"Title", validators=[wtf.Required()],
+    title = wtforms.TextField(u"Title", validators=[wtforms.validators.Required()],
         description=u"The name of the category")
 
     def validate_title(self, field):
@@ -234,7 +235,7 @@ class CategoryForm(Form):
         existing = set([simplify_text(c.title) for c in
             Category.query.filter_by(workspace=g.workspace).all() if c != self.edit_obj])
         if simplify_text(field.data) in existing:
-            raise wtf.ValidationError("You have an existing category with the same name")
+            raise wtforms.ValidationError("You have an existing category with the same name")
 
 
 def sorted_budgets():
@@ -249,14 +250,14 @@ class ExpenseReportForm(Form):
     """
     Create or edit an expense report.
     """
-    title = wtf.TextField(u"Title", validators=[wtf.Required()],
+    title = wtforms.TextField(u"Title", validators=[wtforms.validators.Required()],
         description=u"What are these expenses for?")
-    description = RichTextField(u"Description", validators=[wtf.Optional()],
+    description = RichTextField(u"Description", validators=[wtforms.validators.Optional()],
         description=u"Notes on the expenses")
-    currency = wtf.SelectField(u"Currency", validators=[wtf.Required()],
+    currency = wtforms.SelectField(u"Currency", validators=[wtforms.validators.Required()],
         description=u"Currency for expenses in this report",
         choices=CURRENCIES)
-    budget = wtf.QuerySelectField(u"Budget", validators=[wtf.Optional()],
+    budget = QuerySelectField(u"Budget", validators=[wtforms.validators.Optional()],
         query_factory=sorted_budgets, get_label='title', allow_blank=True,
         description=u"The budget source for these expenses")
 
@@ -265,25 +266,25 @@ class ExpenseForm(Form):
     """
     Create or edit an expense line item.
     """
-    id = wtf.IntegerField(u"Id", validators=[wtf.Optional()])
-    date = wtf.DateField(u"Date", validators=[wtf.Required()])
-    category = wtf.QuerySelectField(u"Category", validators=[wtf.Required()],
+    id = wtforms.IntegerField(u"Id", validators=[wtforms.validators.Optional()])
+    date = wtforms.DateField(u"Date", validators=[wtforms.validators.Required()])
+    category = QuerySelectField(u"Category", validators=[wtforms.validators.Required()],
         query_factory=sorted_categories, get_label='title', allow_blank=True)
-    description = wtf.TextField(u"Description", validators=[wtf.Required()])
-    amount = wtf.DecimalField(u"Amount", validators=[wtf.Required(), wtf.NumberRange(min=0)])
+    description = wtforms.TextField(u"Description", validators=[wtforms.validators.Required()])
+    amount = wtforms.DecimalField(u"Amount", validators=[wtforms.validators.Required(), wtforms.validators.NumberRange(min=0)])
 
     def validate_id(self, field):
         # Check if user is authorized to edit this expense.
         if field.data:
             expense = Expense.query.get(field.data)
             if not expense:
-                raise wtf.ValidationError("Unknown expense")
+                raise wtforms.ValidationError("Unknown expense")
             if expense.report.user != g.user:
-                raise wtf.ValidationError("You are not authorized to edit this expense")
+                raise wtforms.ValidationError("You are not authorized to edit this expense")
 
     def validate_amount(self, field):
         if field.data < Decimal('0.01'):
-            raise wtf.ValidationError("Amount should be non-zero")
+            raise wtforms.ValidationError("Amount should be non-zero")
 
 
 class WorkflowForm(Form):
@@ -297,4 +298,4 @@ class ReviewForm(Form):
     """
     Reviewer notes on expense reports.
     """
-    notes = RichTextField(u"Notes", validators=[wtf.Required()])
+    notes = RichTextField(u"Notes", validators=[wtforms.validators.Required()])
