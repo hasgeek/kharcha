@@ -15,6 +15,7 @@ app = Flask(__name__, instance_relative_config=True)
 lastuser = Lastuser()
 
 from . import models, views
+from .models import db
 
 assets['kharcha.css'][version] = 'css/app.css'
 
