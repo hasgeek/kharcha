@@ -10,7 +10,7 @@ from kharcha.models import db, Workspace
 @app.route('/login')
 @lastuser.login_handler
 def login():
-    return {'scope': 'id email organizations'}
+    return {'scope': 'id email organizations teams'}
 
 
 @app.route('/logout')
