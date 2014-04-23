@@ -28,17 +28,6 @@ class ExpenseReportWorkflow(DocumentWorkflow):
     reviewable = WorkflowStateGroup([pending, review, accepted, rejected, closed],
                                     title=u"Reviewable")
 
-    def permissions(self, user=None):
-        """
-        Permissions available to current user.
-        """
-        base_permissions = super(ExpenseReportWorkflow,
-                                 self).permissions()
-        if user is None:
-            user = g.user
-        base_permissions.extend(self.document.permissions(user))
-        return base_permissions
-
     @draft.transition(pending, 'owner', title=u"Submit", category="primary",
         description=u"Submit this expense report to a reviewer? You cannot "
         "edit this report after it has been submitted.",
