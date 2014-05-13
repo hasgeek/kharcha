@@ -24,11 +24,6 @@ assets['kharcha.css'][version] = 'css/app.css'
 def init_for(env):
     coaster.app.init_app(app, env)
     baseframe.init_app(app, requires=['baseframe', 'jquery.expander', 'kharcha'])
-    app.config.get('NETWORKBAR_LINKS', []).append({
-        'name': u'kharcha',
-        'title': u'Expenses',
-        'url': None
-        })
     lastuser.init_app(app)
     lastuser.init_usermanager(UserManager(models.db, models.User, models.Team))
     app.config['tz'] = timezone(app.config['TIMEZONE'])
