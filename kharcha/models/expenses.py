@@ -85,9 +85,9 @@ class ExpenseReport(BaseScopedIdNameMixin, db.Model):
 
     def update_total(self):
         self.total_value = sum([e.amount for e in self.expenses])
-        #self.total_value = db.session.query(
-        #    db.func.sum(Expense.amount).label('sum')).filter_by(
-        #        report_id = self.id).first().sum
+        # self.total_value = db.session.query(
+        #     db.func.sum(Expense.amount).label('sum')).filter_by(
+        #         report_id = self.id).first().sum
 
     def update_sequence_numbers(self):
         # self.expenses is ordered by seq. See the relation defined at Expense.report

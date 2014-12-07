@@ -112,15 +112,16 @@ def report(workspace, report):
             expense = Expense.query.get(expenseform.id.data)
         else:
             expense = Expense()
+            # FIXME: Replace this with SQLAlchemy's sequence ordering extension
+
             # Find the highest sequence number for expenses in this report.
             # If None, assume 0, then add 1 to get the next sequence number
             expense.seq = (db.session.query(
                 db.func.max(Expense.seq).label('seq')).filter_by(
                     report_id=report.id).first().seq or 0) + 1
-            db.session.add(expense)
         expenseform.populate_obj(expense)
         report.expenses.append(expense)
-        db.session.commit()
+        db.session.flush()
         report.update_total()
         db.session.commit()
         if request.is_xhr:
