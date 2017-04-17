@@ -14,7 +14,7 @@ def shortdate(date):
         tz = g.workspace.tz
     else:
         tz = app.config['tz']
-    return utc.localize(date).astimezone(tz).strftime('%b %e')
+    return utc.localize(date).astimezone(tz).strftime('%e %b')
 
 
 @app.template_filter('longdate')
@@ -23,7 +23,7 @@ def longdate(date):
         tz = g.workspace.tz
     else:
         tz = app.config['tz']
-    return utc.localize(date).astimezone(tz).strftime('%B %e, %Y')
+    return utc.localize(date).astimezone(tz).strftime('%e %B %Y')
 
 
 @app.context_processor
