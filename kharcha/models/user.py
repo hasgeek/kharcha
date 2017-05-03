@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from flask.ext.lastuser.sqlalchemy import UserBase, TeamBase
+from flask_lastuser.sqlalchemy import UserBase, TeamBase
 from kharcha.models import db
 
 __all__ = ['User', 'Team']
