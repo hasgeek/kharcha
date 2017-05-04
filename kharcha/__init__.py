@@ -21,9 +21,8 @@ assets['kharcha.css'][version] = 'css/app.css'
 
 
 # Configure the app
-def init_for(env):
-    coaster.app.init_app(app, env)
-    baseframe.init_app(app, requires=['baseframe', 'jquery.expander', 'kharcha'])
-    lastuser.init_app(app)
-    lastuser.init_usermanager(UserManager(models.db, models.User, models.Team))
-    app.config['tz'] = timezone(app.config['TIMEZONE'])
+coaster.app.init_app(app)
+baseframe.init_app(app, requires=['baseframe', 'jquery.expander', 'kharcha'])
+lastuser.init_app(app)
+lastuser.init_usermanager(UserManager(models.db, models.User, models.Team))
+app.config['tz'] = timezone(app.config['TIMEZONE'])
