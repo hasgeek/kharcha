@@ -7,6 +7,7 @@ from flask import Flask
 from flask_lastuser import Lastuser
 from flask_lastuser.sqlalchemy import UserManager
 from baseframe import baseframe, assets, Version
+from flask_migrate import Migrate
 import coaster.app
 from ._version import __version__
 
@@ -22,6 +23,7 @@ assets['kharcha.css'][version] = 'css/app.css'
 
 # Configure the app
 coaster.app.init_app(app)
+migrate = Migrate(app, models.db)
 baseframe.init_app(app, requires=['baseframe', 'jquery.expander', 'kharcha'])
 lastuser.init_app(app)
 lastuser.init_usermanager(UserManager(models.db, models.User, models.Team))
