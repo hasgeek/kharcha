@@ -8,7 +8,7 @@ import csv
 import StringIO
 from flask import g, flash, url_for, render_template, request, redirect, Response
 from werkzeug.datastructures import MultiDict
-from coaster import format_currency as coaster_format_currency
+from coaster.utils import format_currency as coaster_format_currency
 from coaster.views import load_model, load_models
 from baseframe.forms import render_form, render_redirect, render_delete_sqla, ConfirmDeleteForm
 
