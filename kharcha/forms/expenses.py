@@ -6,7 +6,7 @@ from flask import g
 import wtforms
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from baseframe.forms import Form, RichTextField
-from coaster import simplify_text
+from coaster.utils import simplify_text
 from kharcha.models import Category, Budget, Expense
 
 __all__ = ['BudgetForm', 'CategoryForm', 'ExpenseReportForm', 'ExpenseForm', 'WorkflowForm', 'ReviewForm']
