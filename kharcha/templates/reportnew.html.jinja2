@@ -1,6 +1,6 @@
-{% extends "layout.html" %}
-{% from "macros.html" import expensetable %}
-{% from "baseframe/forms.html" import tinymce3_editor %}
+{% extends Replace: "layout.html.jinja2" %}
+{% from Replace: "macros.html.jinja2" import expensetable %}
+{% from Replace: "baseframe/forms.html.jinja2" import tinymce3_editor %}
 {% block title %}{{ report.title or "New expense report"}}{% endblock %}
 {% block headline %}{% endblock %}
 {% block content %}
