@@ -1,4 +1,4 @@
-{% from Replace: "macros.html.jinja2" import newexpense, expense_script with context %}
+{% from "macros.html.jinja2" import newexpense, expense_script with context %}
 {# This template is inserted into an existing page #}
 {{ newexpense(expenseform, categories) }}
 {{ expense_script() }}

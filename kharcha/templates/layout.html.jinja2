@@ -1,6 +1,6 @@
-{% extends Replace: "baseframe.html.jinja2" %}
-{% from Replace: "baseframe/components.html.jinja2" import flash_messages with context %}
-{% from Replace: "macros.html.jinja2" import category_list, budget_list %}
+{% extends "baseframe.html.jinja2" %}
+{% from "baseframe/components.html.jinja2" import flash_messages with context %}
+{% from "macros.html.jinja2" import category_list, budget_list %}
 {% block logo -%}
   {%- if g.workspace -%}
     <div id="logo"><a href="{{ url_for('workspace_view', workspace=g.workspace.name) }}" title="Home">{{ g.workspace.title }}</a></div>
