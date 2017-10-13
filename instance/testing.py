@@ -1,0 +1,10 @@
+SECRET_KEY = 'testkey'
+SQLALCHEMY_DATABASE_URI = 'postgres://127.0.0.1/kharcha_testing'
+SERVER_NAME = 'kharcha.travis.dev:3000'
+STATIC_SUBDOMAIN = 'static'
+LASTUSER_SERVER = 'https://auth.hasgeek.com'
+LASTUSER_CLIENT_ID = ''
+LASTUSER_CLIENT_SECRET = ''
+
+UPLOAD_FOLDER = '/tmp'
+TIMEZONE = 'Asia/Calcutta'

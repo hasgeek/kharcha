@@ -1,6 +1,5 @@
-# -*- coding: iso-8859-15 -*-
-import os
-import nose
-
-os.environ['ENVIRONMENT'] = "testing"
-nose.main()
+#!/bin/sh
+set -e
+export FLASK_ENV="TESTING"
+coverage run `which nosetests` "$@"
+coverage report -m
