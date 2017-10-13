@@ -54,11 +54,11 @@ def sidebarvars():
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html.jinja2')
 
 
 @app.route('/<workspace>/')
 @lastuser.requires_login
 @load_model(Workspace, {'name': 'workspace'}, 'g.workspace', permission='view')
 def workspace_view(workspace):
-    return render_template('workspace.html', workspace=workspace)
+    return render_template('workspace.html.jinja2', workspace=workspace)

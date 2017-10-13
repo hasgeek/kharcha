@@ -12,11 +12,11 @@ from kharcha.models import Workspace
 @load_model(Workspace, {'name': 'workspace'}, 'g.workspace', permission='view')
 def receipts(workspace):
     # Gallery of receipts
-    return render_template('baseframe/message.html', message="Coming soon")
+    return render_template('baseframe/message.html.jinja2', message="Coming soon")
 
 
 @app.route('/<workspace>/receipts/new')
 @lastuser.requires_login
 @load_model(Workspace, {'name': 'workspace'}, 'g.workspace', permission='view')
 def receipt_new(workspace):
-    return render_template('baseframe/message.html', message="Coming soon")
+    return render_template('baseframe/message.html.jinja2', message="Coming soon")

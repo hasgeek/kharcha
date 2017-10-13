@@ -1,5 +1,5 @@
-{% extends "layout.html" %}
-{% from "macros.html" import expensetable, newexpense, expense_script, expense_table_script %}
+{% extends "layout.html.jinja2" %}
+{% from "macros.html.jinja2" import expensetable, newexpense, expense_script, expense_table_script %}
 {% block title %}{{ report.title }}{% endblock %}
 {% block headline %}{% endblock %}
 {% block content %}

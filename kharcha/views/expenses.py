@@ -52,7 +52,7 @@ def budget(workspace, budget):
     else:
         noreports = True
     reports = ExpenseReportWorkflow.sort_documents(unsorted_reports)
-    return render_template('budget.html', budget=budget, reports=reports, noreports=noreports)
+    return render_template('budget.html.jinja2', budget=budget, reports=reports, noreports=noreports)
 
 
 @app.route('/<workspace>/reports/')
@@ -61,7 +61,7 @@ def budget(workspace, budget):
 def reports(workspace):
     # Sort reports by status
     reports = ExpenseReportWorkflow.sort_documents(available_reports(workspace).all())
-    return render_template('reports.html', reports=reports)
+    return render_template('reports.html.jinja2', reports=reports)
 
 
 @app.route('/<workspace>/reports/all')
@@ -70,7 +70,7 @@ def reports(workspace):
 def reports_all(workspace):
     # Sort reports by status
     reports = ExpenseReportWorkflow.sort_documents(available_reports(workspace, all=True).all())
-    return render_template('reports.html', reports=reports)
+    return render_template('reports.html.jinja2', reports=reports)
 
 
 def report_edit_internal(workspace, form, report=None, workflow=None):
@@ -84,7 +84,7 @@ def report_edit_internal(workspace, form, report=None, workflow=None):
         db.session.commit()
         return redirect(url_for('report', workspace=workspace.name, report=report.url_name), code=303)
     # TODO: Ajax handling here (but then again, is it required?)
-    return render_template('reportnew.html',
+    return render_template('reportnew.html.jinja2',
         workspace=workspace, form=form, report=report, workflow=workflow)
 
 
@@ -126,12 +126,12 @@ def report(workspace, report):
         db.session.commit()
         if request.is_xhr:
             # Return with a blank form
-            return render_template("expense.html", report=report, expenseform=ExpenseForm(MultiDict()))
+            return render_template("expense.html.jinja2", report=report, expenseform=ExpenseForm(MultiDict()))
         else:
             return redirect(url_for('report', workspace=workspace.name, report=report.url_name), code=303)
     if request.is_xhr:
-        return render_template("expense.html", report=report, expenseform=expenseform)
-    return render_template('report.html',
+        return render_template("expense.html.jinja2", report=report, expenseform=expenseform)
+    return render_template('report.html.jinja2',
         report=report,
         workflow=workflow,
         transitions=workflow.transitions(),
@@ -146,7 +146,7 @@ def report(workspace, report):
     )
 def report_expensetable(workspace, report):
     workflow = report.workflow()
-    return render_template('expensetable.html',
+    return render_template('expensetable.html.jinja2',
         report=report, workflow=workflow)
 
 
@@ -230,7 +230,7 @@ def expense_delete(workspace, report, expense):
             report.update_sequence_numbers()
             db.session.commit()
         return redirect(url_for('report', workspace=workspace.name, report=report.url_name), code=303)
-    return render_template('baseframe/delete.html', form=form, title=u"Confirm delete",
+    return render_template('baseframe/delete.html.jinja2', form=form, title=u"Confirm delete",
         message=u"Delete expense item '%s' for %s %s?" % (
             expense.description, report.currency, format_currency(expense.amount)))
 

@@ -11,4 +11,4 @@ from kharcha.models import Workspace
 @lastuser.requires_login
 @load_model(Workspace, {'name': 'workspace'}, 'g.workspace', permission='view')
 def settlements(workspace):
-    return render_template('baseframe/message.html', message="Coming soon")
+    return render_template('baseframe/message.html.jinja2', message="Coming soon")
