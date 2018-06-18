@@ -1,9 +1,9 @@
-baseframe
-pytz
-Flask
+baseframe==0.3.1
+pytz==2018.4
+Flask==1.0.2
 https://github.com/hasgeek/coaster/zipball/master
 https://github.com/hasgeek/baseframe/zipball/master
-Flask-SQLAlchemy
+Flask-SQLAlchemy==2.3.2
 https://github.com/hasgeek/flask-lastuser/zipball/master
 https://github.com/jace/pydocflow/zipball/master
-Flask-Migrate
+Flask-Migrate==2.1.1
