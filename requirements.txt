@@ -6,4 +6,4 @@ https://github.com/hasgeek/baseframe/zipball/master
 Flask-SQLAlchemy==2.3.2
 https://github.com/hasgeek/flask-lastuser/zipball/master
 https://github.com/jace/pydocflow/zipball/master
-Flask-Migrate==2.2.0
+Flask-Migrate==2.2.1
