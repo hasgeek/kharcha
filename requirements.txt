@@ -1,5 +1,5 @@
 baseframe==0.3.1
-pytz==2018.4
+pytz==2018.5
 Flask==1.0.2
 https://github.com/hasgeek/coaster/zipball/master
 https://github.com/hasgeek/baseframe/zipball/master
