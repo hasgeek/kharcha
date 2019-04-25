@@ -3,7 +3,7 @@ pytz==2019.1
 Flask==1.0.2
 https://github.com/hasgeek/coaster/zipball/master
 https://github.com/hasgeek/baseframe/zipball/master
-Flask-SQLAlchemy==2.3.2
+Flask-SQLAlchemy==2.4.0
 https://github.com/hasgeek/flask-lastuser/zipball/master
 https://github.com/jace/pydocflow/zipball/master
 Flask-Migrate==2.4.0
