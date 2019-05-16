@@ -64,7 +64,7 @@ def workspace_new():
 @load_model(Workspace, {'name': 'workspace'}, 'g.workspace', permission='edit')
 def workspace_edit(workspace):
     form = WorkspaceForm(obj=workspace)
-    form.admin_teams.query = Team.query.filter_by(orgid=workspace.userid).order_by('title')
+    form.admin_teams.query = Team.query.filter_by(orgid=workspace.userid).order_by(Team.title)
     form.review_teams.query = form.admin_teams.query
     form.access_teams.query = form.admin_teams.query
     if form.validate_on_submit():

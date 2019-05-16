@@ -35,15 +35,15 @@ def sidebarvars():
         org_ids = []
 
     if org_ids:
-        workspaces = Workspace.query.filter(Workspace.userid.in_(org_ids)).order_by('title').all()
+        workspaces = Workspace.query.filter(Workspace.userid.in_(org_ids)).order_by(Workspace.title).all()
     else:
         workspaces = []
 
     if hasattr(g, 'workspace'):
         return {
             'workspaces': workspaces,
-            'categories': Category.query.filter_by(workspace=g.workspace).order_by('title').all(),
-            'budgets': Budget.query.filter_by(workspace=g.workspace).order_by('title').all(),
+            'categories': Category.query.filter_by(workspace=g.workspace).order_by(Category.title).all(),
+            'budgets': Budget.query.filter_by(workspace=g.workspace).order_by(Budget.title).all(),
             'report_states': ExpenseReportWorkflow.states(),
         }
     else:

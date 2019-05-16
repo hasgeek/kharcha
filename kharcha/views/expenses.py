@@ -26,7 +26,7 @@ def format_currency(value):
 def available_reports(workspace, user=None, all=False):
     if user is None:
         user = g.user
-    query = ExpenseReport.query.filter_by(workspace=workspace).order_by('datetime')
+    query = ExpenseReport.query.filter_by(workspace=workspace).order_by(ExpenseReport.datetime)
     # FIXME+TODO: Replace with per-workspace permissions
     if all and 'review' in g.permissions:
         # Get all reports owned by this user and in states where the user can review them

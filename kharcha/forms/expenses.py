@@ -239,11 +239,11 @@ class CategoryForm(Form):
 
 
 def sorted_budgets():
-    return Budget.query.filter_by(workspace=g.workspace).order_by('title')
+    return Budget.query.filter_by(workspace=g.workspace).order_by(Budget.title)
 
 
 def sorted_categories():
-    return Category.query.filter_by(workspace=g.workspace).order_by('title')
+    return Category.query.filter_by(workspace=g.workspace).order_by(Category.title)
 
 
 class ExpenseReportForm(Form):
