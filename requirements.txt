@@ -1,6 +1,6 @@
 baseframe==0.3.1
 pytz==2019.1
-Flask==1.0.2
+Flask==1.0.3
 https://github.com/hasgeek/coaster/zipball/master
 https://github.com/hasgeek/baseframe/zipball/master
 Flask-SQLAlchemy==2.4.0
