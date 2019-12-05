@@ -32,7 +32,7 @@ class Budget(BaseScopedNameMixin, db.Model):
     workspace = db.relation(Workspace, backref=db.backref('budgets', cascade='all, delete-orphan'))
     parent = db.synonym('workspace')
     #: Description of the budget. HTML field.
-    description = db.Column(db.Text, nullable=False, default=u'')
+    description = db.Column(db.Text, nullable=False, default='')
     __table_args__ = (db.UniqueConstraint('name', 'workspace_id'),)
 
 
@@ -65,9 +65,9 @@ class ExpenseReport(BaseScopedIdNameMixin, db.Model):
     budget_id = db.Column(db.Integer, db.ForeignKey('budget.id'), nullable=True)
     budget = db.relationship(Budget, primaryjoin=budget_id == Budget.id)
     #: Currency for expenses in this report
-    currency = db.Column(db.Unicode(3), nullable=False, default=u'INR')
+    currency = db.Column(db.Unicode(3), nullable=False, default='INR')
     #: Optional description of expenses
-    description = db.Column(db.Text, nullable=False, default=u'')
+    description = db.Column(db.Text, nullable=False, default='')
     #: Total value in the report's currency
     total_value = db.Column(db.Numeric(10, 2), nullable=False, default=Decimal('0.0'))
     #: Total value in the organization's preferred currency
@@ -77,7 +77,7 @@ class ExpenseReport(BaseScopedIdNameMixin, db.Model):
     reviewer = db.relationship(User, primaryjoin=reviewer_id == User.id,
         backref=db.backref('reviewed_reports', cascade='all'))  # No delete-orphan
     #: Reviewer notes
-    notes = db.Column(db.Text, nullable=False, default=u'')  # HTML notes
+    notes = db.Column(db.Text, nullable=False, default='')  # HTML notes
     #: Status
     status = db.Column(db.Integer, nullable=False, default=REPORT_STATUS.DRAFT)
 

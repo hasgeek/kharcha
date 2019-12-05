@@ -5,7 +5,7 @@ Manage expense reports
 """
 
 import csv
-import StringIO
+import io
 from flask import g, flash, url_for, render_template, request, redirect, Response
 from werkzeug.datastructures import MultiDict
 from coaster.utils import format_currency as coaster_format_currency
@@ -158,7 +158,7 @@ def report_expensetable(workspace, report):
     permission='view'
     )
 def report_csv(workspace, report):
-    outfile = StringIO.StringIO()
+    outfile = io.StringIO()
     out = csv.writer(outfile)
     out.writerow(['Date', 'Category', 'Description', 'Amount'])
     for expense in report.expenses:
@@ -192,8 +192,8 @@ def report_edit(workspace, report):
         db.session.commit()
         flash("Edited report '%s'." % report.title, 'success')
         return render_redirect(url_for('report', workspace=workspace.name, report=report.url_name), code=303)
-    return render_form(form=form, title=u"Edit expense report",
-        formid="report_edit", submit=u"Save",
+    return render_form(form=form, title="Edit expense report",
+        formid="report_edit", submit="Save",
         cancel_url=url_for('report', workspace=workspace.name, report=report.url_name))
 
 
@@ -206,9 +206,9 @@ def report_edit(workspace, report):
     )
 def report_delete(workspace, report):
     # Confirm delete
-    return render_delete_sqla(report, db, title=u"Confirm delete",
-        message=u"Delete expense report '%s'?" % report.title,
-        success=u"You have deleted report '%s'." % report.title,
+    return render_delete_sqla(report, db, title="Confirm delete",
+        message="Delete expense report '%s'?" % report.title,
+        success="You have deleted report '%s'." % report.title,
         next=url_for('reports', workspace=workspace.name))
 
 
@@ -230,8 +230,8 @@ def expense_delete(workspace, report, expense):
             report.update_sequence_numbers()
             db.session.commit()
         return redirect(url_for('report', workspace=workspace.name, report=report.url_name), code=303)
-    return render_template('baseframe/delete.html.jinja2', form=form, title=u"Confirm delete",
-        message=u"Delete expense item '%s' for %s %s?" % (
+    return render_template('baseframe/delete.html.jinja2', form=form, title="Confirm delete",
+        message="Delete expense item '%s' for %s %s?" % (
             expense.description, report.currency, format_currency(expense.amount)))
 
 
@@ -245,11 +245,11 @@ def expense_delete(workspace, report, expense):
 def report_submit(workspace, report):
     wf = report.workflow()
     if wf.document.expenses == []:
-        flash(u"This expense report does not list any expenses.", 'error')
+        flash("This expense report does not list any expenses.", 'error')
         return redirect(url_for('report', workspace=workspace.name, report=report.url_name), code=303)
     wf.submit()
     db.session.commit()
-    flash(u"Your expense report has been submitted.", 'success')
+    flash("Your expense report has been submitted.", 'success')
     return redirect(url_for('report', workspace=workspace.name, report=report.url_name), code=303)
 
 
@@ -263,11 +263,11 @@ def report_submit(workspace, report):
 def report_resubmit(workspace, report):
     wf = report.workflow()
     if wf.document.expenses == []:
-        flash(u"This expense report does not list any expenses.", 'error')
+        flash("This expense report does not list any expenses.", 'error')
         return redirect(url_for('report', workspace=workspace.name, report=report.url_name), code=303)
     wf.resubmit()
     db.session.commit()
-    flash(u"Your expense report has been submitted.", 'success')
+    flash("Your expense report has been submitted.", 'success')
     return redirect(url_for('report', workspace=workspace.name, report=report.url_name), code=303)
 
 
@@ -282,7 +282,7 @@ def report_accept(workspace, report):
     wf = report.workflow()
     wf.accept(reviewer=g.user)
     db.session.commit()
-    flash(u"Expense report '%s' has been accepted." % report.title, 'success')
+    flash("Expense report '%s' has been accepted." % report.title, 'success')
     return redirect(url_for('reports_all', workspace=workspace.name), code=303)
 
 
@@ -295,9 +295,9 @@ def report_accept(workspace, report):
     )
 def report_return(workspace, report):
     wf = report.workflow()
-    wf.return_for_review(reviewer=g.user, notes=u'')  # TODO: Form for notes
+    wf.return_for_review(reviewer=g.user, notes='')  # TODO: Form for notes
     db.session.commit()
-    flash(u"Expense report '%s' has been returned for review." % report.title,
+    flash("Expense report '%s' has been returned for review." % report.title,
         'success')
     return redirect(url_for('reports_all', workspace=workspace.name), code=303)
 
@@ -311,9 +311,9 @@ def report_return(workspace, report):
     )
 def report_reject(workspace, report):
     wf = report.workflow()
-    wf.reject(reviewer=g.user, notes=u'')  # TODO: Form for notes
+    wf.reject(reviewer=g.user, notes='')  # TODO: Form for notes
     db.session.commit()
-    flash(u"Expense report '%s' has been rejected." % report.title, 'success')
+    flash("Expense report '%s' has been rejected." % report.title, 'success')
     return redirect(url_for('reports_all', workspace=workspace.name), code=303)
 
 
@@ -328,7 +328,7 @@ def report_withdraw(workspace, report):
     wf = report.workflow()
     wf.withdraw()
     db.session.commit()
-    flash(u"Expense report '%s' has been withdrawn." % report.title, 'success')
+    flash("Expense report '%s' has been withdrawn." % report.title, 'success')
     return redirect(url_for('reports', workspace=workspace.name), code=303)
 
 
@@ -343,5 +343,5 @@ def report_close(workspace, report):
     wf = report.workflow()
     wf.close()
     db.session.commit()
-    flash(u"Expense report '%s' has been closed." % report.title, 'success')
+    flash("Expense report '%s' has been closed." % report.title, 'success')
     return redirect(url_for('reports_all', workspace=workspace.name), code=303)

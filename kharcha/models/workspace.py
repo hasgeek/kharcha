@@ -33,7 +33,7 @@ class Workspace(ProfileMixin, BaseNameMixin, db.Model):
     userid = db.Column(db.Unicode(22), nullable=False, unique=True)
     currency = db.Column(db.Unicode(3), nullable=False)
     timezone = db.Column(db.Unicode(32), nullable=False)
-    description = db.Column(db.UnicodeText, nullable=False, default=u'')
+    description = db.Column(db.UnicodeText, nullable=False, default='')
 
     admin_teams = db.relationship('Team', secondary=workspace_admin_teams, backref='workspaces_admin')
     review_teams = db.relationship('Team', secondary=workspace_review_teams, backref='workspaces_reviewer')
