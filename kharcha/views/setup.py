@@ -26,9 +26,9 @@ def workspace_new():
             new_workspaces.append((org['userid'], org['title']))
     if not new_workspaces:
         return render_message(
-            title=u"No organizations found",
-            message=Markup(u"You do not have any organizations that do not already have a workspace. "
-                u'Would you like to <a href="%s">create a new organization</a>?' %
+            title="No organizations found",
+            message=Markup("You do not have any organizations that do not already have a workspace. "
+                'Would you like to <a href="%s">create a new organization</a>?' %
                     lastuser.endpoint_url('/organizations/new')))
     eligible_workspaces = []
     for orgid, title in new_workspaces:
@@ -36,10 +36,10 @@ def workspace_new():
             eligible_workspaces.append((orgid, title))
     if not eligible_workspaces:
         return render_message(
-            title=u"No organizations available",
-            message=Markup(u"To create a workspace for an organization, you must first allow this app to "
-                u"access the list of teams in your organization. "
-                u'<a href="%s">Do that here</a>.' % lastuser.endpoint_url('/apps/' + lastuser.client_id)))
+            title="No organizations available",
+            message=Markup("To create a workspace for an organization, you must first allow this app to "
+                "access the list of teams in your organization. "
+                '<a href="%s">Do that here</a>.' % lastuser.endpoint_url('/apps/' + lastuser.client_id)))
 
     # Step 3: Ask user to select organization
     form = NewWorkspaceForm()
@@ -53,7 +53,7 @@ def workspace_new():
             currency=form.currency.data, timezone=app.config.get('TIMEZONE', ''))
         db.session.add(workspace)
         db.session.commit()
-        flash(u"Created a workspace for %s" % workspace.title, "success")
+        flash("Created a workspace for %s" % workspace.title, "success")
         return render_redirect(url_for('workspace_edit', workspace=workspace.name), code=303)
     return render_form(form=form, title="Create a workspace for your organization...", submit="Next",
         formid="workspace_new", cancel_url=url_for('index'), ajax=False)
@@ -70,10 +70,10 @@ def workspace_edit(workspace):
     if form.validate_on_submit():
         form.populate_obj(workspace)
         db.session.commit()
-        flash(u"Edited workspace settings.", 'success')
+        flash("Edited workspace settings.", 'success')
         return render_redirect(url_for('workspace_view', workspace=workspace.name), code=303)
 
-    return render_form(form=form, title=u"Edit workspace settings", submit="Save",
+    return render_form(form=form, title="Edit workspace settings", submit="Save",
         formid="workspace_edit", cancel_url=url_for('workspace_view', workspace=workspace.name), ajax=True)
 
 
@@ -84,11 +84,11 @@ def workspace_delete(workspace):
     # Only allow workspaces to be deleted if they have no expense reports
     if workspace.reports:
         return render_message(
-            title=u"Cannot delete this workspace",
-            message=u"This workspace cannot be deleted because it contains expense reports.")
-    return render_delete_sqla(workspace, db, title=u"Confirm delete",
-        message=u"Delete workspace '%s'?" % workspace.title,
-        success=u"You have deleted workspace '%s'." % workspace.title,
+            title="Cannot delete this workspace",
+            message="This workspace cannot be deleted because it contains expense reports.")
+    return render_delete_sqla(workspace, db, title="Confirm delete",
+        message="Delete workspace '%s'?" % workspace.title,
+        success="You have deleted workspace '%s'." % workspace.title,
         next=url_for('index'))
 
 
@@ -112,8 +112,8 @@ def budget_new(workspace):
         db.session.commit()
         flash("Created new budget '%s'." % budget.title, "success")
         return render_redirect(url_for('budget', workspace=workspace.name, budget=budget.name), code=303)
-    return render_form(form=form, title=u"Create new budget",
-        formid="budget_new", submit=u"Create",
+    return render_form(form=form, title="Create new budget",
+        formid="budget_new", submit="Create",
         cancel_url=url_for('budget_list', workspace=workspace.name), ajax=True)
 
 
@@ -132,8 +132,8 @@ def budget_edit(workspace, budget):
         db.session.commit()
         flash("Edited budget '%s'" % budget.title, "success")
         return render_redirect(url_for('budget', workspace=workspace.name, budget=budget.name), code=303)
-    return render_form(form=form, title=u"Edit budget",
-        formid='budget_edit', submit=u"Save",
+    return render_form(form=form, title="Edit budget",
+        formid='budget_edit', submit="Save",
         cancel_url=url_for('budget', workspace=workspace.name, budget=budget.name), ajax=True)
 
 
@@ -145,9 +145,9 @@ def budget_edit(workspace, budget):
     permission='delete'
     )
 def budget_delete(workspace, budget):
-    return render_delete_sqla(budget, db, title=u"Confirm delete",
-        message=u"Delete budget '%s'?" % budget.title,
-        success=u"You have deleted budget '%s'." % budget.title,
+    return render_delete_sqla(budget, db, title="Confirm delete",
+        message="Delete budget '%s'?" % budget.title,
+        success="You have deleted budget '%s'." % budget.title,
         next=url_for('budget_list', workspace=workspace.name))
 
 
@@ -171,8 +171,8 @@ def category_new(workspace):
         db.session.commit()
         flash("Created new category '%s'." % category.title, "success")
         return render_redirect(url_for('category', workspace=workspace.name, category=category.name), code=303)
-    return render_form(form=form, title=u"Create new category",
-        formid="category_new", submit=u"Create",
+    return render_form(form=form, title="Create new category",
+        formid="category_new", submit="Create",
         cancel_url=url_for('category_list', workspace=workspace.name), ajax=True)
 
 
@@ -202,8 +202,8 @@ def category_edit(workspace, category):
         db.session.commit()
         flash("Edited category '%s'" % category.title, "success")
         return render_redirect(url_for('category', workspace=workspace.name, category=category.name), code=303)
-    return render_form(form=form, title=u"Edit category",
-        formid='category_edit', submit=u"Save",
+    return render_form(form=form, title="Edit category",
+        formid='category_edit', submit="Save",
         cancel_url=url_for('category', workspace=workspace.name, category=category.name), ajax=True)
 
 
@@ -215,7 +215,7 @@ def category_edit(workspace, category):
     permission='delete'
     )
 def category_delete(workspace, category):
-    return render_delete_sqla(category, db, title=u"Confirm delete",
-        message=u"Delete category '%s'?" % category.title,
-        success=u"You have deleted category '%s'." % category.title,
+    return render_delete_sqla(category, db, title="Confirm delete",
+        message="Delete category '%s'?" % category.title,
+        success="You have deleted category '%s'." % category.title,
         next=url_for('category_list', workspace=workspace.name))

@@ -18,6 +18,6 @@ class Payment(BaseMixin, db.Model):
     #: User-reported date when payment was made
     date = db.Column(db.Date, nullable=False)
     #: Currency for payment
-    currency = db.Column(db.Unicode(3), nullable=False, default=u'INR')
+    currency = db.Column(db.Unicode(3), nullable=False, default='INR')
     #: Amount of payment
     amount = db.Column(db.Numeric(10, 2), default=0, nullable=False)
