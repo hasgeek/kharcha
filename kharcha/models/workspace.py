@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from pytz import timezone
-from werkzeug import cached_property
+from werkzeug.utils import cached_property
 from flask_lastuser.sqlalchemy import ProfileMixin
 from kharcha.models import db, BaseNameMixin, Team
 
