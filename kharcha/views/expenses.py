@@ -10,6 +10,7 @@ from flask import g, flash, url_for, render_template, request, redirect, Respons
 from werkzeug.datastructures import MultiDict
 from coaster.utils import format_currency as coaster_format_currency
 from coaster.views import load_model, load_models
+from baseframe import request_is_xhr
 from baseframe.forms import render_form, render_redirect, render_delete_sqla, ConfirmDeleteForm
 
 from kharcha import app, lastuser
@@ -124,12 +125,12 @@ def report(workspace, report):
         db.session.flush()
         report.update_total()
         db.session.commit()
-        if request.is_xhr:
+        if request_is_xhr():
             # Return with a blank form
             return render_template("expense.html.jinja2", report=report, expenseform=ExpenseForm(MultiDict()))
         else:
             return redirect(url_for('report', workspace=workspace.name, report=report.url_name), code=303)
-    if request.is_xhr:
+    if request_is_xhr():
         return render_template("expense.html.jinja2", report=report, expenseform=expenseform)
     return render_template('report.html.jinja2',
         report=report,
