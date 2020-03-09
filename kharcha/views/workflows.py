@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import absolute_import
+
 from datetime import datetime
 from flask import g
-from coaster.docflow import DocumentWorkflow, WorkflowState, WorkflowStateGroup
+from kharcha.docflow import DocumentWorkflow, WorkflowState, WorkflowStateGroup
 from kharcha.models import REPORT_STATUS, ExpenseReport
 from kharcha.forms import ReviewForm
 
